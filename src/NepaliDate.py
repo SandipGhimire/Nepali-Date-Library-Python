@@ -2,14 +2,28 @@ from datetime import datetime, timezone
 from typing import Tuple, Union
 from Helper import NEPALI_DATE_MAP, EPOCH, format_date
 
+# -----------------------------------------------------------------------------------
+# Helper Functions
+# -----------------------------------------------------------------------------------
+
 
 def _parse(date_string: str) -> Tuple[int, int, int]:
     """
-    Parses a Nepali date string into components (year, month, day)
-    Month returned is 0-indexed.
+    Parses a Nepali date string into components (year, month, day).
+
+    Supports separators: '-', '.', '/'
+    If month or day is missing, defaults to 1.
+    Month returned is 0-indexed internally.
+
+    Raises:
+        ValueError: If the date is invalid or out of supported Nepali date range.
+
+    Returns:
+        Tuple[int, int, int]: (year, month_indexed_from_0, day)
     """
     import re
 
+    # Split the date string using allowed separators
     parts = re.split(r"[-./]", date_string, maxsplit=2)
     try:
         year = int(parts[0])
@@ -18,12 +32,15 @@ def _parse(date_string: str) -> Tuple[int, int, int]:
     except ValueError:
         raise ValueError("Invalid date")
 
+    # Validate year
     if year < NEPALI_DATE_MAP[0]["year"] or year >= NEPALI_DATE_MAP[0]["year"] + len(NEPALI_DATE_MAP):
         raise ValueError("Nepal year out of range")
 
+    # Validate month
     if month < 1 or month > 12:
         raise ValueError("Invalid Nepali month must be between 1 - 12")
 
+    # Validate day
     days_in_month = NEPALI_DATE_MAP[year -
                                     NEPALI_DATE_MAP[0]["year"]]["days"][month - 1]
     if day < 1 or day > days_in_month:
@@ -33,14 +50,29 @@ def _parse(date_string: str) -> Tuple[int, int, int]:
     return year, month - 1, day
 
 
+# -----------------------------------------------------------------------------------
+# NepaliDate Class
+# -----------------------------------------------------------------------------------
 class NepaliDate:
+    """
+    Represents a Nepali calendar date.
+
+    Can be initialized using:
+        - Gregorian datetime
+        - Another NepaliDate object
+        - Nepali year, month, day integers
+        - Nepali date string (e.g., "2080-01-15")
+        - Millisecond timestamp since epoch
+    """
+
     def __init__(self, year_or_date: Union[datetime, 'NepaliDate', int, str] = None,
                  month: int = None, day: int = None):
-        self.timestamp: datetime = None
-        self.year: int = None
-        self.month: int = None
-        self.day: int = None
+        self.timestamp: datetime = None  # Corresponding Gregorian datetime
+        self.year: int = None            # Nepali year
+        self.month: int = None           # Nepali month (0-indexed internally)
+        self.day: int = None             # Nepali day
 
+        # Initialize based on type of input
         if year_or_date is None:
             self.set_english_date(datetime.now())
         elif isinstance(year_or_date, datetime):
@@ -55,21 +87,30 @@ class NepaliDate:
         elif isinstance(year_or_date, int) and month is not None and day is not None:
             self.set(year_or_date, month, day)
         elif isinstance(year_or_date, int):
+            # Treat as Unix timestamp in milliseconds
             self.set_english_date(datetime.fromtimestamp(year_or_date / 1000))
         else:
             raise ValueError("Invalid argument syntax")
 
+    # -----------------------------------------------------------------------------------
+    # Conversion from Gregorian date
+    # -----------------------------------------------------------------------------------
     def set_english_date(self, date: datetime):
         """
-        Sets internal Nepali date from Gregorian date.
+        Converts a Gregorian datetime to Nepali date and updates instance attributes.
+
+        Parameters:
+            date (datetime): Gregorian date to convert.
         """
         self.timestamp = date
 
+        # Convert to UTC timestamp in milliseconds
         utc_time = int(datetime(date.year, date.month, date.day,
                        tzinfo=timezone.utc).timestamp() * 1000)
-        days_count = (utc_time - EPOCH) // 86400000
-        idx = days_count // 366
+        days_count = (utc_time - EPOCH) // 86400000  # total days since epoch
+        idx = days_count // 366  # approximate index in NEPALI_DATE_MAP
 
+        # Find correct year block
         while days_count >= NEPALI_DATE_MAP[idx]["daysTillNow"]:
             idx += 1
 
@@ -81,15 +122,24 @@ class NepaliDate:
         self.year = tmp["year"]
         self.month = 0
 
+        # Find the correct month
         while days_count >= tmp["days"][self.month]:
             days_count -= tmp["days"][self.month]
             self.month += 1
 
         self.day = days_count + 1
 
+    # -----------------------------------------------------------------------------------
+    # Set Nepali date manually
+    # -----------------------------------------------------------------------------------
     def set(self, year: int, month: int, date: int):
         """
         Sets Nepali date and calculates the equivalent Gregorian date.
+
+        Parameters:
+            year (int): Nepali year
+            month (int): Nepali month (0-indexed internally)
+            date (int): Nepali day
         """
         idx = year + (month // 12) - NEPALI_DATE_MAP[0]["year"]
         if idx < 0 or idx >= len(NEPALI_DATE_MAP):
@@ -98,6 +148,7 @@ class NepaliDate:
         tmp = NEPALI_DATE_MAP[idx]
         d = tmp["daysTillNow"] - sum(tmp["days"])
 
+        # Handle month rollover
         m = month % 12
         mm = m if m >= 0 else 12 + m
 
@@ -106,21 +157,35 @@ class NepaliDate:
 
         d += date - 1
 
+        # Compute UTC timestamp
         utc_timestamp = EPOCH + d * 86400000
         utc_date = datetime.fromtimestamp(
             utc_timestamp / 1000, tz=timezone.utc)
 
+        # Set the Gregorian and Nepali date
         self.set_english_date(utc_date)
 
+    # -----------------------------------------------------------------------------------
+    # Date Formatting
+    # -----------------------------------------------------------------------------------
     def format(self, format_str: str) -> str:
         """
-        Formats the Nepali date according to the given format string.
-        This requires a separate formatter function similar to JS DateFormatter.
+        Formats the Nepali date according to a format string.
+
+        Parameters:
+            format_str (str): e.g., 'YYYY/MM/DD' or custom string with JS-style formatters
+
+        Returns:
+            str: Formatted Nepali date string
         """
         return format_date(self, format_str)
 
+    # -----------------------------------------------------------------------------------
+    # String Representation
+    # -----------------------------------------------------------------------------------
     def __str__(self) -> str:
         """
-        Returns Nepali date as 'YYYY/MM/DD', month is 1-indexed.
+        Returns Nepali date as a string 'YYYY/MM/DD'.
+        Month is converted to 1-indexed for display.
         """
         return f"{self.year}/{self.month + 1}/{self.day}"
