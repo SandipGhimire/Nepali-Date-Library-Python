@@ -49,7 +49,7 @@ def _parse(date_string: str) -> Tuple[int, int, int]:
 
     # Validate year
     if year < nepali_date_map[0]["year"] or year >= nepali_date_map[0]["year"] + len(nepali_date_map):
-        raise ValueError("Nepal year out of range")
+        raise ValueError(f"Nepal year out of range, Year: {year}")
 
     # Validate month
     if month < 1 or month > 12:

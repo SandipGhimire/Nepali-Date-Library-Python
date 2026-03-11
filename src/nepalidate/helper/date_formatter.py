@@ -74,7 +74,7 @@ def year_en(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function.
     """
-    from nepali_date import NepaliDate
+    from nepalidate import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         y = str(date.year)
@@ -101,7 +101,7 @@ def year_np(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function producing Devanagari digits.
     """
-    from nepali_date import NepaliDate
+    from nepalidate import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         y = str(date.year)
@@ -134,7 +134,7 @@ def month_en(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function.
     """
-    from nepali_date import NepaliDate
+    from nepalidate import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         m = date.month
@@ -164,7 +164,7 @@ def month_np(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function using Nepali digits or names.
     """
-    from nepali_date import NepaliDate
+    from nepalidate import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         m = date.month
@@ -200,7 +200,7 @@ def date_en(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function.
     """
-    from nepali_date import NepaliDate
+    from nepalidate import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         d = date.day
@@ -230,7 +230,7 @@ def date_np(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function using Nepali digits or weekday names.
     """
-    from nepali_date import NepaliDate
+    from nepalidate import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         d = date.day

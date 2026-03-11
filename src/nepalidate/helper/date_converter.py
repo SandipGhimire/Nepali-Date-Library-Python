@@ -41,7 +41,7 @@ def ADtoBS(adDate: str) -> str:
     except ValueError:
         raise ValueError(f"Invalid date input '{adDate}'")
 
-    from nepali_date import NepaliDate
+    from nepalidate import NepaliDate
 
     try:
         nd = NepaliDate(ad)
@@ -83,7 +83,7 @@ def BStoAD(bsDate: str) -> str:
     if not re.match(r"^\d{4}-\d{2}-\d{2}$", bsDate):
         raise ValueError("Invalid date format. Expected format: YYYY-MM-DD")
 
-    from nepali_date import NepaliDate
+    from nepalidate import NepaliDate
 
     try:
         nepali_date_instance = NepaliDate(bsDate)
