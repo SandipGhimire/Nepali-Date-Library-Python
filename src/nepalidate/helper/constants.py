@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-NEPALI_DATE_MAP = [
+nepali_date_map = [
     {
         "year": 1976,
         "days": [31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31],
@@ -754,7 +754,7 @@ NEPALI_DATE_MAP = [
 ]
 
 total_days = 0
-for entry in NEPALI_DATE_MAP:
+for entry in nepali_date_map:
     entry["totalDays"] = sum(entry['days'])
     total_days += entry['totalDays']
     entry['daysTillNow'] = total_days
@@ -771,44 +771,44 @@ EPOCH = int(epoch_date.timestamp() * 1000)
 # Weekdays
 # -----------------------------------------------------------------------------------
 # Full English names of the week.
-WEEK_EN = ["Sunday", "Monday", "Tuesday",
+week_en = ["Sunday", "Monday", "Tuesday",
            "Wednesday", "Thursday", "Friday", "Saturday"]
 
 # Short English names of the week.
-WEEK_SHORT_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+week_short_en = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 # Full Nepali names of the week.
-WEEK_NP = ["आइतबार", "सोमबार", "मंगलबार",
+week_np = ["आइतबार", "सोमबार", "मंगलबार",
            "बुधबार", "बिहिबार", "शुक्रबार", "शनिबार"]
 
 # Short Nepali names of the week.
-WEEK_SHORT_NP = ["आइत", "सोम", "मंगल", "बुध", "बिहि", "शुक्र", "शनि"]
+week_short_np = ["आइत", "सोम", "मंगल", "बुध", "बिहि", "शुक्र", "शनि"]
 
 # -----------------------------------------------------------------------------------
 # Months
 # -----------------------------------------------------------------------------------
 # Full names of Nepali months in English transliteration.
-MONTH_EN = [
+month_en = [
     "Baisakh", "Jestha", "Asar", "Shrawan", "Bhadra", "Aswin",
     "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"
 ]
 
 # Short names (abbreviations) of Nepali months in English transliteration.
-MONTH_SHORT_EN = ["Bai", "Jes", "Asa", "Shr", "Bhd",
+month_short_en = ["Bai", "Jes", "Asa", "Shr", "Bhd",
                   "Asw", "Kar", "Man", "Pou", "Mag", "Fal", "Cha"]
 
 # Full Nepali month names in Devanagari script.
-MONTH_NP = [
+month_np = [
     "बैशाख", "जेठ", "असार", "श्रावण", "भाद्र", "आश्विन",
     "कार्तिक", "मंसिर", "पौष", "माघ", "फाल्गुण", "चैत्र"
 ]
 
 # Short Nepali month names (abbreviations) in Devanagari script.
-MONTH_SHORT_NP = ["बै", "जे", "अ", "श्रा", "भा",
+month_short_np = ["बै", "जे", "अ", "श्रा", "भा",
                   "आ", "का", "मं", "पौ", "मा", "फा", "चै"]
 
 # -----------------------------------------------------------------------------------
 # Numbers
 # -----------------------------------------------------------------------------------
 # Nepali digits in Devanagari script.
-NUMBER_NP = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"]
+number_np = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"]
