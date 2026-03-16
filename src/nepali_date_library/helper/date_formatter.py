@@ -74,7 +74,7 @@ def year_en(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function.
     """
-    from nepalidate import NepaliDate
+    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         y = str(date.year)
@@ -101,7 +101,7 @@ def year_np(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function producing Devanagari digits.
     """
-    from nepalidate import NepaliDate
+    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         y = str(date.year)
@@ -134,7 +134,7 @@ def month_en(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function.
     """
-    from nepalidate import NepaliDate
+    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         m = date.month
@@ -164,7 +164,7 @@ def month_np(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function using Nepali digits or names.
     """
-    from nepalidate import NepaliDate
+    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         m = date.month
@@ -200,7 +200,7 @@ def date_en(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function.
     """
-    from nepalidate import NepaliDate
+    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         d = date.day
@@ -230,7 +230,7 @@ def date_np(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function using Nepali digits or weekday names.
     """
-    from nepalidate import NepaliDate
+    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         d = date.day
@@ -367,12 +367,12 @@ def tokenize(format_str: str) -> List[DateFormatter]:
 # -----------------------------------------------------------------------------
 # Main Formatting Function
 # -----------------------------------------------------------------------------
-def format_date(nepali_date: "NepaliDate", format_str: str) -> str:
+def format_date(nepalidate_library: "NepaliDate", format_str: str) -> str:
     """
     Format a NepaliDate object according to a custom format string.
 
     Args:
-        nepali_date (NepaliDate):
+        nepalidate_library (NepaliDate):
             Nepali date instance to format.
 
         format_str (str):
@@ -393,4 +393,4 @@ def format_date(nepali_date: "NepaliDate", format_str: str) -> str:
         >>> format_date(nd, "DD MMMM YYYY")
         '01 Baisakh 2080'
     """
-    return ''.join(f(nepali_date) for f in tokenize(format_str))
+    return ''.join(f(nepalidate_library) for f in tokenize(format_str))

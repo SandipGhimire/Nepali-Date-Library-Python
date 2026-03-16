@@ -1,4 +1,4 @@
-from .nepali_date import NepaliDate
+from .nepali_date_library import NepaliDate
 from .helper.constants import (
     nepali_date_map,
     week_en,
@@ -31,3 +31,5 @@ __all__ = [
     "ADtoBS",
     "BStoAD"
 ]
+
+__version__ = "0.0.1"

@@ -3,8 +3,8 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nepalidate"
-version = "0.1.0"
+name = "nepali-date-library"
+version = "0.0.1"
 description = "A Python library for Nepali date conversion and manipulation"
 authors = [{ name = "Sandip Ghimire", email = "sandipghimire2076@gmail.com" }]
 readme = "ReadMe.md"
