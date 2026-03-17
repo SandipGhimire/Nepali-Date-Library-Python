@@ -1,5 +1,4 @@
-import pytest
-from datetime import datetime, timezone
+from datetime import datetime
 from nepalidate import nepali_date_map, NepaliDate, BStoAD, ADtoBS
 
 

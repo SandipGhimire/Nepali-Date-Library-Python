@@ -1,8 +1,19 @@
-from typing import Callable, List
+from __future__ import annotations
+from typing import Callable, List, TYPE_CHECKING
 from .constants import (
-    month_en, month_short_en, month_short_np, month_np,
-    number_np, week_short_np, week_short_en, week_np, week_en
+    month_en,
+    month_short_en,
+    month_short_np,
+    month_np,
+    number_np,
+    week_short_np,
+    week_short_en,
+    week_np,
+    week_en,
 )
+
+if TYPE_CHECKING:
+    from nepali_date_library import NepaliDate
 
 # -----------------------------------------------------------------------------
 # Type Aliases
@@ -54,7 +65,7 @@ def np_digit(s: str) -> str:
         >>> np_digit("123")
         '१२३'
     """
-    return ''.join(number_np[ord(c) - 48] for c in s)
+    return "".join(number_np[ord(c) - 48] for c in s)
 
 
 # -----------------------------------------------------------------------------
@@ -74,7 +85,6 @@ def year_en_formatter(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function.
     """
-    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         y = str(date.year)
@@ -101,7 +111,6 @@ def year_np_formatter(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function producing Devanagari digits.
     """
-    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         y = str(date.year)
@@ -134,7 +143,6 @@ def month_en_formatter(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function.
     """
-    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         m = date.month
@@ -164,7 +172,6 @@ def month_np_formatter(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function using Nepali digits or names.
     """
-    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         m = date.month
@@ -200,7 +207,6 @@ def date_en_formatter(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function.
     """
-    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         d = date.day
@@ -212,7 +218,7 @@ def date_en_formatter(size: int) -> DateFormatter:
             return pad(d)
 
         if size == 3:
-            return week_short_en[date.weekday()]
+            return week_short_en[date.get_day()]
 
         return week_en[date.get_day()]
 
@@ -230,7 +236,6 @@ def date_np_formatter(size: int) -> DateFormatter:
     Returns:
         DateFormatter: Formatter function using Nepali digits or weekday names.
     """
-    from nepali_date_library import NepaliDate
 
     def f(date: "NepaliDate") -> str:
         d = date.day
@@ -271,12 +276,12 @@ def pass_str(seq: str) -> DateFormatter:
 # Format Character Mapping
 # -----------------------------------------------------------------------------
 fn = {
-    'Y': year_en_formatter,
-    'y': year_np_formatter,
-    'M': month_en_formatter,
-    'm': month_np_formatter,
-    'D': date_en_formatter,
-    'd': date_np_formatter,
+    "Y": year_en_formatter,
+    "y": year_np_formatter,
+    "M": month_en_formatter,
+    "m": month_np_formatter,
+    "D": date_en_formatter,
+    "d": date_np_formatter,
 }
 """
 Mapping between format characters and their corresponding formatter
@@ -314,9 +319,9 @@ def tokenize(format_str: str) -> List[DateFormatter]:
 
     The tokenizer processes:
 
-    • Repeated format characters (e.g., YYYY, MM, DD)  
-    • Literal strings enclosed in double quotes  
-    • Plain text outside quotes  
+    • Repeated format characters (e.g., YYYY, MM, DD)
+    • Literal strings enclosed in double quotes
+    • Plain text outside quotes
 
     Args:
         format_str (str): Formatting pattern.
@@ -379,9 +384,9 @@ def format_date(nepalidate_library: "NepaliDate", format_str: str) -> str:
             Format pattern using special characters.
 
             Examples:
-                YYYY → full year  
-                MM → month number  
-                DD → day number  
+                YYYY → full year
+                MM → month number
+                DD → day number
 
     Returns:
         str: Formatted date string.
@@ -393,4 +398,4 @@ def format_date(nepalidate_library: "NepaliDate", format_str: str) -> str:
         >>> format_date(nd, "DD MMMM YYYY")
         '01 Baisakh 2080'
     """
-    return ''.join(f(nepalidate_library) for f in tokenize(format_str))
+    return "".join(f(nepalidate_library) for f in tokenize(format_str))

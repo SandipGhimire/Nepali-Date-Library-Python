@@ -1,10 +1,16 @@
 from datetime import datetime, timezone, timedelta
-from typing import Tuple, Union, Dict, List
+from typing import Tuple, Union, Dict, List, Optional, Any
 from .helper.constants import (
     nepali_date_map,
     EPOCH,
-    month_short_np, month_np, month_short_en, month_en,
-    week_en, week_np, week_short_en, week_short_np
+    month_short_np,
+    month_np,
+    month_short_en,
+    month_en,
+    week_en,
+    week_np,
+    week_short_en,
+    week_short_np,
 )
 from .helper.date_formatter import format_date
 import math
@@ -54,7 +60,9 @@ def _parse(date_string: str) -> Tuple[int, int, int]:
         raise ValueError("Invalid date")
 
     # Validate year
-    if year < nepali_date_map[0]["year"] or year >= nepali_date_map[0]["year"] + len(nepali_date_map):
+    if year < nepali_date_map[0]["year"] or year >= nepali_date_map[0]["year"] + len(
+        nepali_date_map
+    ):
         raise ValueError(f"Nepal year out of range, Year: {year}")
 
     # Validate month
@@ -62,11 +70,13 @@ def _parse(date_string: str) -> Tuple[int, int, int]:
         raise ValueError("Invalid Nepali month must be between 1 - 12")
 
     # Validate day
-    days_in_month = nepali_date_map[year -
-                                    nepali_date_map[0]["year"]]["days"][month - 1]
+    days_in_month = nepali_date_map[year - nepali_date_map[0]["year"]]["days"][
+        month - 1
+    ]
     if day < 1 or day > days_in_month:
         raise ValueError(
-            f"Invalid Nepali date must be between 1 - {days_in_month} in {year}-{month}")
+            f"Invalid Nepali date must be between 1 - {days_in_month} in {year}-{month}"
+        )
 
     return year, month - 1, day
 
@@ -98,8 +108,12 @@ class NepaliDate:
             Nepali day of the month.
     """
 
-    def __init__(self, year_or_date: Union[datetime, 'NepaliDate', int, str] = None,
-                 month: int = None, day: int = None):
+    def __init__(
+        self,
+        year_or_date: Optional[Union[datetime, "NepaliDate", int, str]] = None,
+        month: Optional[int] = None,
+        day: Optional[int] = None,
+    ):
         """
         Initialize a NepaliDate instance.
 
@@ -128,14 +142,14 @@ class NepaliDate:
             ValueError:
                 If the argument combination is invalid.
         """
-        self.timestamp: datetime = None  # Corresponding Gregorian datetime
-        self.year: int = None            # Nepali year
-        self.month: int = None           # Nepali month (0-indexed internally)
-        self.day: int = None             # Nepali day
+        self.timestamp: datetime = None  # type: ignore[assignment]
+        self.year: int = None  # type: ignore[assignment]
+        self.month: int = None  # type: ignore[assignment]
+        self.day: int = None  # type: ignore[assignment]
 
         # Initialize based on type of input
         if year_or_date is None:
-            self.set_english_date(datetime.now())
+            self.set_english_date(datetime.now(timezone.utc))
         elif isinstance(year_or_date, datetime):
             self.set_english_date(year_or_date)
         elif isinstance(year_or_date, NepaliDate):
@@ -156,7 +170,7 @@ class NepaliDate:
     # -----------------------------------------------------------------------------------
     # Conversion from Gregorian date
     # -----------------------------------------------------------------------------------
-    def set_english_date(self, date: datetime):
+    def set_english_date(self, date: datetime) -> None:
         """
         Convert a Gregorian datetime to a Nepali date.
 
@@ -174,8 +188,11 @@ class NepaliDate:
         self.timestamp = date
 
         # Convert to UTC timestamp in milliseconds
-        utc_time = int(datetime(date.year, date.month, date.day,
-                       tzinfo=timezone.utc).timestamp() * 1000)
+        utc_time = int(
+            datetime(date.year, date.month, date.day,
+                     tzinfo=timezone.utc).timestamp()
+            * 1000
+        )
         days_count = (utc_time - EPOCH) // 86400000  # total days since epoch
         idx = days_count // 366  # approximate index in nepali_date_map
 
@@ -201,7 +218,7 @@ class NepaliDate:
     # -----------------------------------------------------------------------------------
     # Set Nepali date manually
     # -----------------------------------------------------------------------------------
-    def set(self, year: int, month: int, date: int):
+    def set(self, year: int, month: int, date: int) -> None:
         """
         Set the Nepali date manually and compute the equivalent
         Gregorian timestamp.
@@ -414,7 +431,7 @@ class NepaliDate:
     # -------------------------------------------------------------------------
     # Add Days
     # -------------------------------------------------------------------------
-    def add_days(self, days: int) -> 'NepaliDate':
+    def add_days(self, days: int) -> "NepaliDate":
         """
         Add the specified number of days to the current Nepali date.
 
@@ -430,7 +447,7 @@ class NepaliDate:
     # -------------------------------------------------------------------------
     # Add Months
     # -------------------------------------------------------------------------
-    def add_months(self, months: int) -> 'NepaliDate':
+    def add_months(self, months: int) -> "NepaliDate":
         """
         Add the specified number of months to the current Nepali date.
 
@@ -470,7 +487,7 @@ class NepaliDate:
     # -------------------------------------------------------------------------
     # Add Years
     # -------------------------------------------------------------------------
-    def add_years(self, years: int) -> 'NepaliDate':
+    def add_years(self, years: int) -> "NepaliDate":
         """
         Add the specified number of years to the current Nepali date.
 
@@ -488,7 +505,9 @@ class NepaliDate:
         """
         new_year = self.year + years
 
-        if new_year < nepali_date_map[0]["year"] or new_year >= nepali_date_map[0]["year"] + len(nepali_date_map):
+        if new_year < nepali_date_map[0]["year"] or new_year >= nepali_date_map[0][
+            "year"
+        ] + len(nepali_date_map):
             raise ValueError("Resulting date is out of supported range")
 
         year_index = new_year - nepali_date_map[0]["year"]
@@ -522,7 +541,10 @@ class NepaliDate:
         Returns:
             datetime: Maximum supported Gregorian date.
         """
-        return datetime.fromtimestamp((EPOCH + (nepali_date_map[-1]["daysTillNow"] * 86400000)) / 1000, tz=timezone.utc)
+        return datetime.fromtimestamp(
+            (EPOCH + (nepali_date_map[-1]["daysTillNow"] * 86400000)) / 1000,
+            tz=timezone.utc,
+        )
 
     # -------------------------------------------------------------------------
     # Days in Month
@@ -670,8 +692,8 @@ class NepaliDate:
             raise ValueError(
                 "start_of_week mush be an integer between 0 and 6")
 
-        start_of_week = self.start_of_week(start_of_week)
-        return start_of_week.add_days(6).end_of_day()
+        week_start = self.start_of_week(start_of_week)
+        return week_start.add_days(6).end_of_day()
 
     # -------------------------------------------------------------------------
     # Start of Month
@@ -798,7 +820,9 @@ class NepaliDate:
         Returns:
             bool: True if the date is valid within the supported range.
         """
-        if year < nepali_date_map[0]["year"] or year >= nepali_date_map[0]["year"] + len(nepali_date_map):
+        if year < nepali_date_map[0]["year"] or year >= nepali_date_map[0][
+            "year"
+        ] + len(nepali_date_map):
             return False
 
         if month < 0 or month > 11:
@@ -828,7 +852,7 @@ class NepaliDate:
     # Get Calendar Days
     # -------------------------------------------------------------------------
     @staticmethod
-    def get_calendar_days(year: int, month: int) -> Dict:
+    def get_calendar_days(year: int, month: int) -> Dict[str, Any]:
         """
         Generate calendar grid days including leading/trailing days
         from adjacent months to fill a 6-week (42-cell) grid.
@@ -858,7 +882,8 @@ class NepaliDate:
             prev_idx = prev_year - nepali_date_map[0]["year"]
             days_in_prev = nepali_date_map[prev_idx]["days"][prev_month]
             prev_days = list(
-                range(days_in_prev - first_day_of_week + 1, days_in_prev + 1))
+                range(days_in_prev - first_day_of_week + 1, days_in_prev + 1)
+            )
 
         current_days = list(range(1, days_in_month + 1))
 
@@ -1005,12 +1030,12 @@ class NepaliDate:
     # -------------------------------------------------------------------------
     # Get Quarters
     # -------------------------------------------------------------------------
-    def current_year_quarters(self) -> List[Dict[str, "NepaliDate"]]:
+    def current_year_quarters(self) -> Dict[str, Dict[str, "NepaliDate"]]:
         """
         Return the dates for all four quarters of the current year.
 
         Returns:
-            List[Dict[str, NepaliDate]]: A list containing start/end for each quarter.
+            Dict[str, Dict[str, NepaliDate]]: A dictionary containing start/end for each quarter.
         """
         return NepaliDate.get_quarters(self.year)
 
@@ -1018,7 +1043,7 @@ class NepaliDate:
     # Get Quarters by Year
     # -------------------------------------------------------------------------
     @staticmethod
-    def get_quarters(year) -> List[Dict[str, "NepaliDate"]]:
+    def get_quarters(year: int) -> Dict[str, Dict[str, "NepaliDate"]]:
         """
         Return the dates for all four quarters of a specified year.
 
@@ -1026,7 +1051,7 @@ class NepaliDate:
             year (int): Nepali year.
 
         Returns:
-            List[Dict[str, NepaliDate]]: Dictionary mapping Q1-Q4 to their dates.
+            Dict[str, Dict[str, NepaliDate]]: Dictionary mapping Q1-Q4 to their dates.
 
         Raises:
             ValueError: If the year is invalid.
@@ -1034,13 +1059,11 @@ class NepaliDate:
         if nepali_date_map[year - nepali_date_map[0]["year"]] is None:
             raise ValueError("Invalid year")
 
-        nepali_year = year
-
         return {
             "Q1": NepaliDate.get_quarter(1, year),
             "Q2": NepaliDate.get_quarter(2, year),
             "Q3": NepaliDate.get_quarter(3, year),
-            "Q4": NepaliDate.get_quarter(4, year)
+            "Q4": NepaliDate.get_quarter(4, year),
         }
 
     # -------------------------------------------------------------------------
@@ -1065,7 +1088,9 @@ class NepaliDate:
     # Get Fiscal Year Quarter
     # -------------------------------------------------------------------------
     @staticmethod
-    def get_fiscal_quarter(quarter: int, fiscal_year: int = None) -> Dict[str, "NepaliDate"]:
+    def get_fiscal_quarter(
+        quarter: int, fiscal_year: Optional[int] = None
+    ) -> Dict[str, "NepaliDate"]:
         """
         Return the start and end dates for a specific fiscal year quarter.
 
@@ -1145,7 +1170,9 @@ class NepaliDate:
     # Get Fiscal Year Quarters
     # -------------------------------------------------------------------------
     @staticmethod
-    def get_fiscal_quarters(fiscal_year: int = None) -> Dict[str, Dict[str, "NepaliDate"]]:
+    def get_fiscal_quarters(
+        fiscal_year: Optional[int] = None,
+    ) -> Dict[str, Dict[str, "NepaliDate"]]:
         """
         Return the start and end dates for all four quarters of a fiscal year.
 
@@ -1171,8 +1198,14 @@ class NepaliDate:
     # -------------------------------------------------------------------------
     # Equal to operator
     # -------------------------------------------------------------------------
-    def __eq__(self, other: "NepaliDate") -> bool:
-        return self.year == other.year and self.month == other.month and self.day == other.day
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, NepaliDate):
+            raise ValueError("Invalid argument syntax")
+        return (
+            self.year == other.year
+            and self.month == other.month
+            and self.day == other.day
+        )
 
     # -------------------------------------------------------------------------
     # Less than operator

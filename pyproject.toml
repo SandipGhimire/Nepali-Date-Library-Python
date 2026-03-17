@@ -4,13 +4,27 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nepali-date-library"
-version = "0.0.1"
-description = "A Python library for Nepali date conversion and manipulation"
-authors = [{ name = "Sandip Ghimire", email = "sandipghimire2076@gmail.com" }]
+version = "1.0.0"
+description = "A Nepali Date Library for Python (Bikram Sambat ↔ AD conversion and manipulation)"
 readme = "ReadMe.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
-keywords = ["nepali", "date", "calendar", "conversion"]
+
+authors = [{ name = "Sandip Ghimire", email = "sandipghimire2076@gmail.com" }]
+
+keywords = [
+    "nepali",
+    "nepal",
+    "nepali-date-library",
+    "nepali-calendar",
+    "nepali-date",
+    "bikram-sambat",
+    "bs-date",
+    "date-conversion",
+    "ad-to-bs",
+    "bs-to-ad",
+]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -20,5 +34,27 @@ classifiers = [
 
 dependencies = []
 
+[project.urls]
+Homepage = "https://nepalidate.sandip-ghimire.com.np"
+Repository = "https://github.com/SandipGhimire/nepali-date-library-python"
+Issues = "https://github.com/SandipGhimire/nepali-date-library-python/issues"
+
 [project.optional-dependencies]
-dev = ["pytest>=7.0"]
+dev = ["pytest>=7.0", "black", "flake8", "mypy"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 88
+target-version = ["py38"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
