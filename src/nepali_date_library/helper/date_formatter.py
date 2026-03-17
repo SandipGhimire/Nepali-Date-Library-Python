@@ -60,7 +60,7 @@ def np_digit(s: str) -> str:
 # -----------------------------------------------------------------------------
 # Year Formatters
 # -----------------------------------------------------------------------------
-def year_en(size: int) -> DateFormatter:
+def year_en_formatter(size: int) -> DateFormatter:
     """
     Create a formatter for the Nepali year using English digits.
 
@@ -90,7 +90,7 @@ def year_en(size: int) -> DateFormatter:
     return f
 
 
-def year_np(size: int) -> DateFormatter:
+def year_np_formatter(size: int) -> DateFormatter:
     """
     Create a formatter for the Nepali year using Nepali digits.
 
@@ -120,7 +120,7 @@ def year_np(size: int) -> DateFormatter:
 # -----------------------------------------------------------------------------
 # Month Formatters
 # -----------------------------------------------------------------------------
-def month_en(size: int) -> DateFormatter:
+def month_en_formatter(size: int) -> DateFormatter:
     """
     Create a formatter for Nepali months using English names or digits.
 
@@ -153,7 +153,7 @@ def month_en(size: int) -> DateFormatter:
     return f
 
 
-def month_np(size: int) -> DateFormatter:
+def month_np_formatter(size: int) -> DateFormatter:
     """
     Create a formatter for Nepali months using Nepali script.
 
@@ -186,7 +186,7 @@ def month_np(size: int) -> DateFormatter:
 # -----------------------------------------------------------------------------
 # Day / Weekday Formatters
 # -----------------------------------------------------------------------------
-def date_en(size: int) -> DateFormatter:
+def date_en_formatter(size: int) -> DateFormatter:
     """
     Create a formatter for the day or weekday in English.
 
@@ -214,12 +214,12 @@ def date_en(size: int) -> DateFormatter:
         if size == 3:
             return week_short_en[date.weekday()]
 
-        return week_en[date.weekday()]
+        return week_en[date.get_day()]
 
     return f
 
 
-def date_np(size: int) -> DateFormatter:
+def date_np_formatter(size: int) -> DateFormatter:
     """
     Create a formatter for the day or weekday in Nepali script.
 
@@ -242,9 +242,9 @@ def date_np(size: int) -> DateFormatter:
             return np_digit(pad(d))
 
         if size == 3:
-            return week_short_np[date.weekday()]
+            return week_short_np[date.get_day()]
 
-        return week_np[date.weekday()]
+        return week_np[date.get_day()]
 
     return f
 
@@ -271,12 +271,12 @@ def pass_str(seq: str) -> DateFormatter:
 # Format Character Mapping
 # -----------------------------------------------------------------------------
 fn = {
-    'Y': year_en,
-    'y': year_np,
-    'M': month_en,
-    'm': month_np,
-    'D': date_en,
-    'd': date_np,
+    'Y': year_en_formatter,
+    'y': year_np_formatter,
+    'M': month_en_formatter,
+    'm': month_np_formatter,
+    'D': date_en_formatter,
+    'd': date_np_formatter,
 }
 """
 Mapping between format characters and their corresponding formatter

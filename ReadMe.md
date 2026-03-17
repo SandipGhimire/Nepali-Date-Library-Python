@@ -23,8 +23,21 @@ For detailed guides, API references, and examples, please visit the official Wik
 
 ## Installation
 
-Install via PyPI:
-
 ```bash
 pip install nepali-date-library
 ```
+
+## Quick Start
+
+```py
+from nepali_date_library import NepaliDate;
+
+now = NepaliDate()
+print(now.format("YYYY-MM-DD"))
+```
+
+For more advanced usage, please refer to the [Wiki](https://nepalidate.sandip-ghimire.com.np).
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
