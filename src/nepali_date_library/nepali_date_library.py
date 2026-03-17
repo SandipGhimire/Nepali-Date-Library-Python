@@ -552,7 +552,7 @@ class NepaliDate:
 
     @staticmethod
     def get_current_fiscal_year() -> int:
-        today = NepaliDate.today()
+        today = NepaliDate()
         year = today.get_year()
         month = today.get_month()
         return year - 1 if month < 3 else year
