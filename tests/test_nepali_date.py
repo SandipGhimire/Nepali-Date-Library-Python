@@ -1,5 +1,5 @@
 from datetime import datetime
-from nepalidate import nepali_date_map, NepaliDate, BStoAD, ADtoBS
+from nepali_date_library import NepaliDate, nepali_date_map, BStoAD, ADtoBS
 
 
 def test_full_bs_to_ad_and_back():

@@ -1,15 +1,15 @@
 from datetime import datetime, timezone
-from typing import TypedDict, List as TList
+from typing import TypedDict, List
 
 
 class NepaliDateEntry(TypedDict):
     year: int
-    days: TList[int]
+    days: List[int]
     totalDays: int
     daysTillNow: int
 
 
-nepali_date_map: TList[NepaliDateEntry] = [
+nepali_date_map: List[NepaliDateEntry] = [
     {
         "year": 1976,
         "days": [31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31],
@@ -780,15 +780,13 @@ EPOCH = int(epoch_date.timestamp() * 1000)
 # Weekdays
 # -----------------------------------------------------------------------------------
 # Full English names of the week.
-week_en = ["Sunday", "Monday", "Tuesday",
-           "Wednesday", "Thursday", "Friday", "Saturday"]
+week_en = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
 # Short English names of the week.
 week_short_en = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 # Full Nepali names of the week.
-week_np = ["आइतबार", "सोमबार", "मंगलबार",
-           "बुधबार", "बिहिबार", "शुक्रबार", "शनिबार"]
+week_np = ["आइतबार", "सोमबार", "मंगलबार", "बुधबार", "बिहिबार", "शुक्रबार", "शनिबार"]
 
 # Short Nepali names of the week.
 week_short_np = ["आइत", "सोम", "मंगल", "बुध", "बिहि", "शुक्र", "शनि"]

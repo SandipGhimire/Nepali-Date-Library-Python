@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from typing import Tuple, Union, Dict, List, Optional, Any
+from typing import Tuple, Union, Dict, Optional, Any
 from .helper.constants import (
     nepali_date_map,
     EPOCH,
@@ -189,8 +189,7 @@ class NepaliDate:
 
         # Convert to UTC timestamp in milliseconds
         utc_time = int(
-            datetime(date.year, date.month, date.day,
-                     tzinfo=timezone.utc).timestamp()
+            datetime(date.year, date.month, date.day, tzinfo=timezone.utc).timestamp()
             * 1000
         )
         days_count = (utc_time - EPOCH) // 86400000  # total days since epoch
@@ -200,8 +199,7 @@ class NepaliDate:
         while days_count >= nepali_date_map[idx]["daysTillNow"]:
             idx += 1
 
-        prev_till_now = nepali_date_map[idx -
-                                        1]["daysTillNow"] if idx - 1 >= 0 else 0
+        prev_till_now = nepali_date_map[idx - 1]["daysTillNow"] if idx - 1 >= 0 else 0
         days_count -= prev_till_now
 
         tmp = nepali_date_map[idx]
@@ -253,8 +251,7 @@ class NepaliDate:
 
         # Compute UTC timestamp
         utc_timestamp = EPOCH + d * 86400000
-        utc_date = datetime.fromtimestamp(
-            utc_timestamp / 1000, tz=timezone.utc)
+        utc_date = datetime.fromtimestamp(utc_timestamp / 1000, tz=timezone.utc)
 
         # Set the Gregorian and Nepali date
         self.set_english_date(utc_date)
@@ -631,8 +628,7 @@ class NepaliDate:
         Returns:
             NepaliDate: New instance set to 00:00:00.
         """
-        start = self.timestamp.replace(
-            hour=0, minute=0, second=0, microsecond=0)
+        start = self.timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
         return NepaliDate(start)
 
     # -------------------------------------------------------------------------
@@ -645,8 +641,7 @@ class NepaliDate:
         Returns:
             NepaliDate: New instance set to 23:59:59.999.
         """
-        end = self.timestamp.replace(
-            hour=23, minute=59, second=59, microsecond=999000)
+        end = self.timestamp.replace(hour=23, minute=59, second=59, microsecond=999000)
         return NepaliDate(end)
 
     # -------------------------------------------------------------------------
@@ -666,8 +661,7 @@ class NepaliDate:
             ValueError: If start_of_week is not between 0 and 6.
         """
         if start_of_week < 0 or start_of_week > 6:
-            raise ValueError(
-                "start_of_week mush be an integer between 0 and 6")
+            raise ValueError("start_of_week mush be an integer between 0 and 6")
 
         current_day = self.get_day()
         day_to_subtract = (current_day - start_of_week + 7) % 7
@@ -689,8 +683,7 @@ class NepaliDate:
             NepaliDate: New instance set to the last day of the week.
         """
         if start_of_week < 0 or start_of_week > 6:
-            raise ValueError(
-                "start_of_week mush be an integer between 0 and 6")
+            raise ValueError("start_of_week mush be an integer between 0 and 6")
 
         week_start = self.start_of_week(start_of_week)
         return week_start.add_days(6).end_of_day()

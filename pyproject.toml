@@ -6,9 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "nepali-date-library"
 version = "1.0.0"
 description = "A Nepali Date Library for Python (Bikram Sambat ↔ AD conversion and manipulation)"
-readme = "ReadMe.md"
-requires-python = ">=3.8"
-license = { text = "MIT" }
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.8, <3.13"
+license = "MIT"
+license-files = ["LICENSE"]
 
 authors = [{ name = "Sandip Ghimire", email = "sandipghimire2076@gmail.com" }]
 
@@ -27,20 +28,29 @@ keywords = [
 
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 dependencies = []
 
 [project.urls]
 Homepage = "https://nepalidate.sandip-ghimire.com.np"
-Repository = "https://github.com/SandipGhimire/nepali-date-library-python"
-Issues = "https://github.com/SandipGhimire/nepali-date-library-python/issues"
+Repository = "https://github.com/SandipGhimire/Nepali-Date-Library-Python"
+Issues = "https://github.com/SandipGhimire/Nepali-Date-Library-Python/issues"
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0", "black", "flake8", "mypy"]
+dev = ["pytest>=7.0", "black", "flake8", "mypy", "build", "twine", "taskipy"]
+
+[tool.taskipy.tasks]
+test = "black --check src && flake8 src && pytest"
+build = "python -m build"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
@@ -55,6 +65,9 @@ testpaths = ["tests"]
 line-length = 88
 target-version = ["py38"]
 
+[tool.flake8]
+max-line-length = 88
+
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.8"
 strict = true
