@@ -6,8 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "nepali-date-library"
 version = "1.0.0"
 description = "A Nepali Date Library for Python (Bikram Sambat ↔ AD conversion and manipulation)"
-readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.8, <3.13"
+readme = "README.md"
+requires-python = ">=3.9"
 license = "MIT"
 license-files = ["LICENSE"]
 
@@ -31,11 +31,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 dependencies = []
@@ -65,9 +65,6 @@ testpaths = ["tests"]
 line-length = 88
 target-version = ["py38"]
 
-[tool.flake8]
-max-line-length = 88
-
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 strict = true
