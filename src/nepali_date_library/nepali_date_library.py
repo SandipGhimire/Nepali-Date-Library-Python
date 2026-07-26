@@ -162,8 +162,9 @@ class NepaliDate:
         elif isinstance(year_or_date, int) and month is not None and day is not None:
             self.set(year_or_date, month, day)
         elif isinstance(year_or_date, int):
-            # Treat as Unix timestamp in milliseconds
-            self.set_english_date(datetime.fromtimestamp(year_or_date / 1000))
+            self.set_english_date(
+                datetime.fromtimestamp(year_or_date / 1000, tz=timezone.utc)
+            )
         else:
             raise ValueError("Invalid argument syntax")
 
@@ -539,7 +540,7 @@ class NepaliDate:
             datetime: Maximum supported Gregorian date.
         """
         return datetime.fromtimestamp(
-            (EPOCH + (nepali_date_map[-1]["daysTillNow"] * 86400000)) / 1000,
+            (EPOCH + (nepali_date_map[-1]["daysTillNow"] - 1) * 86400000) / 1000,
             tz=timezone.utc,
         )
 
