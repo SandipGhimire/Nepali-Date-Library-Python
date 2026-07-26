@@ -38,6 +38,16 @@ print(now.format("YYYY-MM-DD"))
 
 For more advanced usage, please refer to the [Wiki](https://nepalidate.sandip-ghimire.com.np).
 
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) to manage the dev environment and dependencies.
+
+```bash
+uv sync --group dev   # create .venv and install dev dependencies
+uv run task test      # black --check, flake8, and pytest
+uv build              # build sdist/wheel into dist/
+```
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)

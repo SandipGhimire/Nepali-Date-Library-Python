@@ -36,6 +36,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 dependencies = []
@@ -45,7 +46,7 @@ Homepage = "https://nepalidate.sandip-ghimire.com.np"
 Repository = "https://github.com/SandipGhimire/Nepali-Date-Library-Python"
 Issues = "https://github.com/SandipGhimire/Nepali-Date-Library-Python/issues"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = ["pytest>=7.0", "black", "flake8", "mypy", "build", "twine", "taskipy"]
 
 [tool.taskipy.tasks]

@@ -20,13 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
+          enable-cache: true
 
-      - run: pip install -e ".[dev]"
+      - run: uv sync --group dev
 
-      - run: task test
+      - run: uv run task test
 
   build:
     needs: test
@@ -37,10 +38,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
+          enable-cache: true
 
-      - run: pip install build
-
-      - run: python -m build
+      - run: uv build

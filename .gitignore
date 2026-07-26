@@ -22,7 +22,8 @@ pip-delete-this-directory.txt
 # Documentation
 docs/_build/
 
-venv/
+.venv/
 main.py
 
 .pytest_cache/
+.mypy_cache/
