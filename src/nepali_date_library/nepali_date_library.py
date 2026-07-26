@@ -196,9 +196,18 @@ class NepaliDate:
         days_count = (utc_time - EPOCH) // 86400000  # total days since epoch
         idx = days_count // 366  # approximate index in nepali_date_map
 
+        if idx < 0:
+            raise ValueError("Date is out of the supported range")
+
         # Find correct year block
-        while days_count >= nepali_date_map[idx]["daysTillNow"]:
+        while (
+            idx < len(nepali_date_map)
+            and days_count >= nepali_date_map[idx]["daysTillNow"]
+        ):
             idx += 1
+
+        if idx >= len(nepali_date_map):
+            raise ValueError("Date is out of the supported range")
 
         prev_till_now = nepali_date_map[idx - 1]["daysTillNow"] if idx - 1 >= 0 else 0
         days_count -= prev_till_now
@@ -371,12 +380,17 @@ class NepaliDate:
     # -------------------------------------------------------------------------
     def get_day(self) -> int:
         """
-        Return the day of the week (0-6, where 0 is Monday).
+        Return the day of the week (0-6, where 0 is Sunday), matching the
+        indexing used by ``week_en``/``week_np`` and the NodeJS/PHP ports.
+
+        ``datetime.weekday()`` is Monday-indexed (0=Monday), so it is
+        remapped here to the Sunday-indexed convention shared by the other
+        language ports.
 
         Returns:
-            int: Day of the week index.
+            int: Day of the week index (0=Sunday .. 6=Saturday).
         """
-        return self.timestamp.weekday()
+        return (self.timestamp.weekday() + 1) % 7
 
     # -------------------------------------------------------------------------
     # Get Day of Month
@@ -389,6 +403,66 @@ class NepaliDate:
             int: Day of the month (1-32).
         """
         return self.day
+
+    # -------------------------------------------------------------------------
+    # Get Hours
+    # -------------------------------------------------------------------------
+    def get_hours(self) -> int:
+        """
+        Return the hour of the day (0-23).
+
+        Returns:
+            int: Hour of the day.
+        """
+        return self.timestamp.hour
+
+    # -------------------------------------------------------------------------
+    # Get Minutes
+    # -------------------------------------------------------------------------
+    def get_minutes(self) -> int:
+        """
+        Return the minutes (0-59).
+
+        Returns:
+            int: Minutes.
+        """
+        return self.timestamp.minute
+
+    # -------------------------------------------------------------------------
+    # Get Seconds
+    # -------------------------------------------------------------------------
+    def get_seconds(self) -> int:
+        """
+        Return the seconds (0-59).
+
+        Returns:
+            int: Seconds.
+        """
+        return self.timestamp.second
+
+    # -------------------------------------------------------------------------
+    # Get Milliseconds
+    # -------------------------------------------------------------------------
+    def get_milliseconds(self) -> int:
+        """
+        Return the milliseconds (0-999).
+
+        Returns:
+            int: Milliseconds.
+        """
+        return self.timestamp.microsecond // 1000
+
+    # -------------------------------------------------------------------------
+    # Get Time
+    # -------------------------------------------------------------------------
+    def get_time(self) -> int:
+        """
+        Return the timestamp in Unix epoch milliseconds.
+
+        Returns:
+            int: Timestamp in milliseconds.
+        """
+        return int(self.timestamp.timestamp() * 1000)
 
     # -------------------------------------------------------------------------
     # Set Year
