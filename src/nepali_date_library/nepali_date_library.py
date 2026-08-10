@@ -3,6 +3,7 @@ from typing import Tuple, Union, Dict, Optional, Any
 from .helper.constants import (
     nepali_date_map,
     EPOCH,
+    NEPAL_UTC_OFFSET_MS,
     month_short_np,
     month_np,
     month_short_en,
@@ -188,9 +189,16 @@ class NepaliDate:
         """
         self.timestamp = date
 
+        nepal_wall_clock = date + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+
         # Convert to UTC timestamp in milliseconds
         utc_time = int(
-            datetime(date.year, date.month, date.day, tzinfo=timezone.utc).timestamp()
+            datetime(
+                nepal_wall_clock.year,
+                nepal_wall_clock.month,
+                nepal_wall_clock.day,
+                tzinfo=timezone.utc,
+            ).timestamp()
             * 1000
         )
         days_count = (utc_time - EPOCH) // 86400000  # total days since epoch
@@ -703,8 +711,9 @@ class NepaliDate:
         Returns:
             NepaliDate: New instance set to 00:00:00.
         """
-        start = self.timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
-        return NepaliDate(start)
+        result = self.clone()
+        result.timestamp = self.timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
+        return result
 
     # -------------------------------------------------------------------------
     # End of Day
@@ -716,8 +725,9 @@ class NepaliDate:
         Returns:
             NepaliDate: New instance set to 23:59:59.999.
         """
-        end = self.timestamp.replace(hour=23, minute=59, second=59, microsecond=999000)
-        return NepaliDate(end)
+        result = self.clone()
+        result.timestamp = self.timestamp.replace(hour=23, minute=59, second=59, microsecond=999000)
+        return result
 
     # -------------------------------------------------------------------------
     # Start of Week
