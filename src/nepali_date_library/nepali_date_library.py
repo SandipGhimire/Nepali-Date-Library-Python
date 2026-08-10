@@ -231,6 +231,15 @@ class NepaliDate:
 
         self.day = days_count + 1
 
+    def _timestamp_utc_ms(self) -> int:
+        ts = self.timestamp
+        return int(
+            datetime(
+                ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second, ts.microsecond, tzinfo=timezone.utc
+            ).timestamp()
+            * 1000
+        )
+
     # -----------------------------------------------------------------------------------
     # Set Nepali date manually
     # -----------------------------------------------------------------------------------
@@ -398,7 +407,8 @@ class NepaliDate:
         Returns:
             int: Day of the week index (0=Sunday .. 6=Saturday).
         """
-        return (self.timestamp.weekday() + 1) % 7
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        return (nepal_time.weekday() + 1) % 7
 
     # -------------------------------------------------------------------------
     # Get Day of Month
@@ -422,7 +432,8 @@ class NepaliDate:
         Returns:
             int: Hour of the day.
         """
-        return self.timestamp.hour
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        return nepal_time.hour
 
     # -------------------------------------------------------------------------
     # Get Minutes
@@ -434,7 +445,8 @@ class NepaliDate:
         Returns:
             int: Minutes.
         """
-        return self.timestamp.minute
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        return nepal_time.minute
 
     # -------------------------------------------------------------------------
     # Get Seconds
@@ -446,7 +458,8 @@ class NepaliDate:
         Returns:
             int: Seconds.
         """
-        return self.timestamp.second
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        return nepal_time.second
 
     # -------------------------------------------------------------------------
     # Get Milliseconds
@@ -712,7 +725,11 @@ class NepaliDate:
             NepaliDate: New instance set to 00:00:00.
         """
         result = self.clone()
-        result.timestamp = self.timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
+        utc_ms = self._timestamp_utc_ms()
+        nepal_ms = utc_ms + NEPAL_UTC_OFFSET_MS
+        nepal_day_start_ms = (nepal_ms // 86400000) * 86400000
+        true_ms = nepal_day_start_ms - NEPAL_UTC_OFFSET_MS
+        result.timestamp = datetime.fromtimestamp(true_ms / 1000, tz=timezone.utc)
         return result
 
     # -------------------------------------------------------------------------
@@ -726,7 +743,11 @@ class NepaliDate:
             NepaliDate: New instance set to 23:59:59.999.
         """
         result = self.clone()
-        result.timestamp = self.timestamp.replace(hour=23, minute=59, second=59, microsecond=999000)
+        utc_ms = self._timestamp_utc_ms()
+        nepal_ms = utc_ms + NEPAL_UTC_OFFSET_MS
+        nepal_day_start_ms = (nepal_ms // 86400000) * 86400000
+        true_ms = nepal_day_start_ms + 86400000 - 1 - NEPAL_UTC_OFFSET_MS
+        result.timestamp = datetime.fromtimestamp(true_ms / 1000, tz=timezone.utc)
         return result
 
     # -------------------------------------------------------------------------

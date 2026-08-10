@@ -229,8 +229,8 @@ def test_time_getters():
     ad = datetime(2023, 4, 28, 13, 45, 30, 250000, tzinfo=timezone.utc)
     d = NepaliDate(ad)
 
-    assert d.get_hours() == 13
-    assert d.get_minutes() == 45
+    assert d.get_hours() == 19
+    assert d.get_minutes() == 30
     assert d.get_seconds() == 30
     assert d.get_milliseconds() == 250
     assert d.get_time() == int(ad.timestamp() * 1000)
@@ -253,8 +253,10 @@ def test_get_day_is_sunday_indexed():
 def test_start_and_end_of_day():
     d = NepaliDate(2080, 0, 15)
 
-    assert d.start_of_day().get_english_date().strftime("%Y-%m-%dT%H:%M:%S") == "2023-04-28T00:00:00"
-    assert d.end_of_day().get_english_date().strftime("%Y-%m-%dT%H:%M:%S") == "2023-04-28T23:59:59"
+    assert d.start_of_day().get_english_date().strftime("%Y-%m-%dT%H:%M:%S") == "2023-04-27T18:15:00"
+    assert d.start_of_day().get_hours() == 0
+    assert d.end_of_day().get_english_date().strftime("%Y-%m-%dT%H:%M:%S") == "2023-04-28T18:14:59"
+    assert d.end_of_day().get_hours() == 23
     assert d.end_of_day().get_milliseconds() == 999
 
 
