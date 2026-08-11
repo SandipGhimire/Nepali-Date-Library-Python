@@ -18,12 +18,16 @@ def test_round_trip():
 
 
 def test_ad_to_bs_rejects_malformed_input():
-    with pytest.raises(ValueError, match="Invalid date format. Expected format: YYYY-MM-DD"):
+    with pytest.raises(
+        ValueError, match="Invalid date format. Expected format: YYYY-MM-DD"
+    ):
         ADtoBS("2023/04/14")
 
 
 def test_bs_to_ad_rejects_malformed_input():
-    with pytest.raises(ValueError, match="Invalid date format. Expected format: YYYY-MM-DD"):
+    with pytest.raises(
+        ValueError, match="Invalid date format. Expected format: YYYY-MM-DD"
+    ):
         BStoAD("2080/01/01")
 
 

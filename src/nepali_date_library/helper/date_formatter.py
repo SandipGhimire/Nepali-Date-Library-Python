@@ -337,7 +337,6 @@ def tokenize(format_str: str) -> List[DateFormatter]:
     tokens: List[DateFormatter] = []
 
     for ch in format_str:
-
         if ch == special:
             special_size += 1
             continue

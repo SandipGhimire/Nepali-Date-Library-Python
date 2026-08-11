@@ -203,8 +203,9 @@ def test_minimum_and_maximum():
 
     last = nepali_date_map[-1]
     expected_max_ad = (
-        NepaliDate(last["year"], 11, last["days"][11]
-                   ).get_english_date().strftime("%Y-%m-%d")
+        NepaliDate(last["year"], 11, last["days"][11])
+        .get_english_date()
+        .strftime("%Y-%m-%d")
     )
     assert NepaliDate.maximum().strftime("%Y-%m-%d") == expected_max_ad
 
@@ -255,11 +256,15 @@ def test_get_day_is_sunday_indexed():
 def test_start_and_end_of_day():
     d = NepaliDate(2080, 0, 15)
 
-    assert d.start_of_day().get_english_date().strftime(
-        "%Y-%m-%dT%H:%M:%S") == "2023-04-27T18:15:00"
+    assert (
+        d.start_of_day().get_english_date().strftime("%Y-%m-%dT%H:%M:%S")
+        == "2023-04-27T18:15:00"
+    )
     assert d.start_of_day().get_hours() == 0
-    assert d.end_of_day().get_english_date().strftime(
-        "%Y-%m-%dT%H:%M:%S") == "2023-04-28T18:14:59"
+    assert (
+        d.end_of_day().get_english_date().strftime("%Y-%m-%dT%H:%M:%S")
+        == "2023-04-28T18:14:59"
+    )
     assert d.end_of_day().get_hours() == 23
     assert d.end_of_day().get_milliseconds() == 999
 
@@ -420,10 +425,12 @@ def test_get_calendar_days_structure():
 
     assert cal["prev_remaining_days"] == 5
     assert cal["remaining_days"] == 6
-    assert cal["prev_month"] == {"year": 2079,
-                                 "month": 11, "days": [26, 27, 28, 29, 30]}
-    assert cal["next_month"] == {"year": 2080,
-                                 "month": 1, "days": [1, 2, 3, 4, 5, 6]}
+    assert cal["prev_month"] == {
+        "year": 2079,
+        "month": 11,
+        "days": [26, 27, 28, 29, 30],
+    }
+    assert cal["next_month"] == {"year": 2080, "month": 1, "days": [1, 2, 3, 4, 5, 6]}
     assert len(cal["current_month"]["days"]) == 31
 
 

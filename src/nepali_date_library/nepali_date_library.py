@@ -217,8 +217,7 @@ class NepaliDate:
         if idx >= len(nepali_date_map):
             raise ValueError("Date is out of the supported range")
 
-        prev_till_now = nepali_date_map[idx -
-                                        1]["daysTillNow"] if idx - 1 >= 0 else 0
+        prev_till_now = nepali_date_map[idx - 1]["daysTillNow"] if idx - 1 >= 0 else 0
         days_count -= prev_till_now
 
         tmp = nepali_date_map[idx]
@@ -236,7 +235,14 @@ class NepaliDate:
         ts = self.timestamp
         return int(
             datetime(
-                ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second, ts.microsecond, tzinfo=timezone.utc
+                ts.year,
+                ts.month,
+                ts.day,
+                ts.hour,
+                ts.minute,
+                ts.second,
+                ts.microsecond,
+                tzinfo=timezone.utc,
             ).timestamp()
             * 1000
         )
@@ -279,8 +285,7 @@ class NepaliDate:
 
         # Compute UTC timestamp
         utc_timestamp = EPOCH + d * 86400000
-        utc_date = datetime.fromtimestamp(
-            utc_timestamp / 1000, tz=timezone.utc)
+        utc_date = datetime.fromtimestamp(utc_timestamp / 1000, tz=timezone.utc)
 
         # Set the Gregorian and Nepali date
         self.set_english_date(utc_date)
@@ -409,8 +414,7 @@ class NepaliDate:
         Returns:
             int: Day of the week index (0=Sunday .. 6=Saturday).
         """
-        nepal_time = self.timestamp + \
-            timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
         return (nepal_time.weekday() + 1) % 7
 
     # -------------------------------------------------------------------------
@@ -435,8 +439,7 @@ class NepaliDate:
         Returns:
             int: Hour of the day.
         """
-        nepal_time = self.timestamp + \
-            timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
         return nepal_time.hour
 
     # -------------------------------------------------------------------------
@@ -449,8 +452,7 @@ class NepaliDate:
         Returns:
             int: Minutes.
         """
-        nepal_time = self.timestamp + \
-            timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
         return nepal_time.minute
 
     # -------------------------------------------------------------------------
@@ -463,8 +465,7 @@ class NepaliDate:
         Returns:
             int: Seconds.
         """
-        nepal_time = self.timestamp + \
-            timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
         return nepal_time.second
 
     # -------------------------------------------------------------------------
@@ -641,8 +642,7 @@ class NepaliDate:
             datetime: Maximum supported Gregorian date.
         """
         return datetime.fromtimestamp(
-            (EPOCH + (nepali_date_map[-1]
-             ["daysTillNow"] - 1) * 86400000) / 1000,
+            (EPOCH + (nepali_date_map[-1]["daysTillNow"] - 1) * 86400000) / 1000,
             tz=timezone.utc,
         )
 
@@ -736,8 +736,7 @@ class NepaliDate:
         nepal_ms = utc_ms + NEPAL_UTC_OFFSET_MS
         nepal_day_start_ms = (nepal_ms // 86400000) * 86400000
         true_ms = nepal_day_start_ms - NEPAL_UTC_OFFSET_MS
-        result.timestamp = datetime.fromtimestamp(
-            true_ms / 1000, tz=timezone.utc)
+        result.timestamp = datetime.fromtimestamp(true_ms / 1000, tz=timezone.utc)
         return result
 
     # -------------------------------------------------------------------------
@@ -755,8 +754,7 @@ class NepaliDate:
         nepal_ms = utc_ms + NEPAL_UTC_OFFSET_MS
         nepal_day_start_ms = (nepal_ms // 86400000) * 86400000
         true_ms = nepal_day_start_ms + 86400000 - 1 - NEPAL_UTC_OFFSET_MS
-        result.timestamp = datetime.fromtimestamp(
-            true_ms / 1000, tz=timezone.utc)
+        result.timestamp = datetime.fromtimestamp(true_ms / 1000, tz=timezone.utc)
         return result
 
     # -------------------------------------------------------------------------
@@ -776,8 +774,7 @@ class NepaliDate:
             ValueError: If start_of_week is not between 0 and 6.
         """
         if start_of_week < 0 or start_of_week > 6:
-            raise ValueError(
-                "start_of_week mush be an integer between 0 and 6")
+            raise ValueError("start_of_week mush be an integer between 0 and 6")
 
         current_day = self.get_day()
         day_to_subtract = (current_day - start_of_week + 7) % 7
@@ -799,8 +796,7 @@ class NepaliDate:
             NepaliDate: New instance set to the last day of the week.
         """
         if start_of_week < 0 or start_of_week > 6:
-            raise ValueError(
-                "start_of_week mush be an integer between 0 and 6")
+            raise ValueError("start_of_week mush be an integer between 0 and 6")
 
         week_start = self.start_of_week(start_of_week)
         return week_start.add_days(6).end_of_day()
