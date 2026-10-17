@@ -1,53 +1,52 @@
-# NepaliDate Library (Python)
+# NepaliDate Library (Python) 🇳🇵
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/SandipGhimire/Nepali-Date-Library-Python/blob/master/LICENSE)
-[![Docs](https://img.shields.io/badge/Docs-Official%20Wiki-blue)](https://nepalidate.sandip-ghimire.com.np)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-black)](https://github.com/SandipGhimire/nepali-date-library-Python)
+[![PyPI version](https://img.shields.io/pypi/v/nepali-date-library.svg?style=flat-square&color=E1804B)](https://pypi.org/project/nepali-date-library/)
+[![Python versions](https://img.shields.io/pypi/pyversions/nepali-date-library.svg?style=flat-square&color=3776AB&logo=python&logoColor=white)](https://pypi.org/project/nepali-date-library/)
+[![Documentation](https://img.shields.io/badge/Docs-nepali--pkg.date-E1804B?style=flat-square&logo=google-chrome&logoColor=white)](https://nepali-pkg.date/docs/python)
+[![Date Converter](https://img.shields.io/badge/Converter-BS%20%E2%86%94%20AD-24292E?style=flat-square)](https://nepali-pkg.date/converter)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](./LICENSE)
 
-## Overview
-
-The `NepaliDate` Python library provides a proper way to work with Nepali (Bikram Sambat) dates.  
-It allows you to create, manipulate, format, and convert between Nepali Bikram Sambat dates (1976/01/01 - 2100/12/31) and Gregorian dates (1919-03-13 - 2044-04-12). It also supports fiscal years, quarters, and extensive date operations.
-
-This library is a Python port of the original TypeScript/JavaScript `NepaliDate` library.
+A robust, zero-dependency Python library and **Nepali Date Converter** for working with **Nepali (Bikram Sambat / BS)** dates between **1976/01/01 and 2100/12/31 BS**.
 
 ---
 
-## 📚 Documentation
+### 📖 Full Documentation & Live Tools
 
-For detailed guides, API references, and examples, please visit the official Wiki:
+All guides, complete API references, Devanagari format tokens, fiscal year helpers, and interactive playground are hosted on our official documentation portal:
 
-👉 **[nepalidate.sandip-ghimire.com.np](https://nepalidate.sandip-ghimire.com.np)**
+👉 **[https://nepali-pkg.date/docs/python](https://nepali-pkg.date/docs/python)**  
+🔄 **[Try the Live Date Converter](https://nepali-pkg.date/converter)**
 
 ---
 
-## Installation
+## 📦 Installation
 
 ```bash
 pip install nepali-date-library
 ```
 
-## Quick Start
+---
 
-```py
-from nepali_date_library import NepaliDate;
+## 🚀 Quick Example
 
-now = NepaliDate()
-print(now.format("YYYY-MM-DD"))
+```python
+from nepali_date_library import NepaliDate
+
+today = NepaliDate()
+print(today.format("YYYY-MM-DD"))  # "2081-07-01"
 ```
 
-For more advanced usage, please refer to the [Wiki](https://nepalidate.sandip-ghimire.com.np).
+> **Note**: For complete API methods, standalone conversion (`ad_to_bs` / `bs_to_ad`), date arithmetic, and fiscal year calculations, visit [**https://nepali-pkg.date/docs/python**](https://nepali-pkg.date/docs/python).
 
-## Development
+---
 
-This project uses [uv](https://docs.astral.sh/uv/) to manage the dev environment and dependencies.
+## 🤝 Contributing
 
-```bash
-uv sync --group dev   # create .venv and install dev dependencies
-uv run task test      # black --check, flake8, and pytest
-uv build              # build sdist/wheel into dist/
-```
+Contributions are welcome! Please read our [**Contributing Guide**](./CONTRIBUTING.md) or visit our [**Online Contribution Guide**](https://nepali-pkg.date/docs/contribution).
 
-## License
+---
 
-[MIT](https://choosealicense.com/licenses/mit/)
+## 📄 License
+
+MIT © [Sandip Ghimire](https://github.com/SandipGhimire)  
+Made with ❤️ by [Sandip Ghimire](https://github.com/SandipGhimire).

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nepali-date-library"
 version = "1.0.1"
-description = "A Nepali Date Library for Python (Bikram Sambat ↔ AD conversion and manipulation)"
+description = "Fast, zero-dependency Nepali Date (Bikram Sambat / BS) converter and calendar library for Python. Bidirectional BS to AD / AD to BS conversion, fiscal year, date arithmetic, and Devanagari formatting."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
@@ -14,16 +14,25 @@ license-files = ["LICENSE"]
 authors = [{ name = "Sandip Ghimire", email = "sandipghimire2076@gmail.com" }]
 
 keywords = [
+    "date-converter",
+    "nepali-date-converter",
+    "nepali-date",
+    "nepali-date-library",
+    "bikram-sambat",
+    "bikram-sambat-date",
+    "bikram-sambat-converter",
+    "bs-to-ad",
+    "ad-to-bs",
+    "bs-date",
+    "nepali-calendar",
+    "nepali-patro",
+    "nepali-miti",
+    "nepali-age-calculator",
+    "nepali-fiscal-year",
+    "aarthik-barsha",
     "nepali",
     "nepal",
-    "nepali-date-library",
-    "nepali-calendar",
-    "nepali-date",
-    "bikram-sambat",
-    "bs-date",
-    "date-conversion",
-    "ad-to-bs",
-    "bs-to-ad",
+    "python-nepali-date",
 ]
 
 classifiers = [
@@ -42,7 +51,8 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://nepalidate.sandip-ghimire.com.np"
+Homepage = "https://nepali-pkg.date/docs/python"
+Documentation = "https://nepali-pkg.date/docs/python"
 Repository = "https://github.com/SandipGhimire/Nepali-Date-Library-Python"
 Issues = "https://github.com/SandipGhimire/Nepali-Date-Library-Python/issues"
 
