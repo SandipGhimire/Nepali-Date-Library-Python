@@ -776,6 +776,8 @@ for entry in nepali_date_map:
 epoch_date = datetime(1919, 4, 13, tzinfo=timezone.utc)
 EPOCH = int(epoch_date.timestamp() * 1000)
 
+NEPAL_UTC_OFFSET_MS = (5 * 60 * 60 + 45 * 60) * 1000
+
 # -----------------------------------------------------------------------------------
 # Weekdays
 # -----------------------------------------------------------------------------------

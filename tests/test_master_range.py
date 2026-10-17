@@ -25,9 +25,9 @@ def test_full_bs_to_ad_and_back():
                 nd2 = NepaliDate(datetime.strptime(ad_date_str, "%Y-%m-%d"))
                 bs_date_str = ADtoBS(ad_date_str)
 
-                assert nd2.format("YYYY-MM-DD") == expected, (
-                    f"Round-trip via AD mismatch for {expected} (AD {ad_date_str})"
-                )
-                assert bs_date_str == expected, (
-                    f"ADtoBS mismatch for {expected} (AD {ad_date_str})"
-                )
+                assert (
+                    nd2.format("YYYY-MM-DD") == expected
+                ), f"Round-trip via AD mismatch for {expected} (AD {ad_date_str})"
+                assert (
+                    bs_date_str == expected
+                ), f"ADtoBS mismatch for {expected} (AD {ad_date_str})"

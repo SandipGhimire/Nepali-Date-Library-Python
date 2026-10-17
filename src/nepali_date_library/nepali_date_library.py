@@ -3,6 +3,7 @@ from typing import Tuple, Union, Dict, Optional, Any
 from .helper.constants import (
     nepali_date_map,
     EPOCH,
+    NEPAL_UTC_OFFSET_MS,
     month_short_np,
     month_np,
     month_short_en,
@@ -142,10 +143,10 @@ class NepaliDate:
             ValueError:
                 If the argument combination is invalid.
         """
-        self.timestamp: datetime = None  # type: ignore[assignment]
-        self.year: int = None  # type: ignore[assignment]
-        self.month: int = None  # type: ignore[assignment]
-        self.day: int = None  # type: ignore[assignment]
+        self.timestamp: datetime
+        self.year: int
+        self.month: int
+        self.day: int
 
         # Initialize based on type of input
         if year_or_date is None:
@@ -188,9 +189,16 @@ class NepaliDate:
         """
         self.timestamp = date
 
+        nepal_wall_clock = date + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+
         # Convert to UTC timestamp in milliseconds
         utc_time = int(
-            datetime(date.year, date.month, date.day, tzinfo=timezone.utc).timestamp()
+            datetime(
+                nepal_wall_clock.year,
+                nepal_wall_clock.month,
+                nepal_wall_clock.day,
+                tzinfo=timezone.utc,
+            ).timestamp()
             * 1000
         )
         days_count = (utc_time - EPOCH) // 86400000  # total days since epoch
@@ -222,6 +230,22 @@ class NepaliDate:
             self.month += 1
 
         self.day = days_count + 1
+
+    def _timestamp_utc_ms(self) -> int:
+        ts = self.timestamp
+        return int(
+            datetime(
+                ts.year,
+                ts.month,
+                ts.day,
+                ts.hour,
+                ts.minute,
+                ts.second,
+                ts.microsecond,
+                tzinfo=timezone.utc,
+            ).timestamp()
+            * 1000
+        )
 
     # -----------------------------------------------------------------------------------
     # Set Nepali date manually
@@ -390,7 +414,8 @@ class NepaliDate:
         Returns:
             int: Day of the week index (0=Sunday .. 6=Saturday).
         """
-        return (self.timestamp.weekday() + 1) % 7
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        return (nepal_time.weekday() + 1) % 7
 
     # -------------------------------------------------------------------------
     # Get Day of Month
@@ -414,7 +439,8 @@ class NepaliDate:
         Returns:
             int: Hour of the day.
         """
-        return self.timestamp.hour
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        return nepal_time.hour
 
     # -------------------------------------------------------------------------
     # Get Minutes
@@ -426,7 +452,8 @@ class NepaliDate:
         Returns:
             int: Minutes.
         """
-        return self.timestamp.minute
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        return nepal_time.minute
 
     # -------------------------------------------------------------------------
     # Get Seconds
@@ -438,7 +465,8 @@ class NepaliDate:
         Returns:
             int: Seconds.
         """
-        return self.timestamp.second
+        nepal_time = self.timestamp + timedelta(milliseconds=NEPAL_UTC_OFFSET_MS)
+        return nepal_time.second
 
     # -------------------------------------------------------------------------
     # Get Milliseconds
@@ -703,8 +731,13 @@ class NepaliDate:
         Returns:
             NepaliDate: New instance set to 00:00:00.
         """
-        start = self.timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
-        return NepaliDate(start)
+        result = self.clone()
+        utc_ms = self._timestamp_utc_ms()
+        nepal_ms = utc_ms + NEPAL_UTC_OFFSET_MS
+        nepal_day_start_ms = (nepal_ms // 86400000) * 86400000
+        true_ms = nepal_day_start_ms - NEPAL_UTC_OFFSET_MS
+        result.timestamp = datetime.fromtimestamp(true_ms / 1000, tz=timezone.utc)
+        return result
 
     # -------------------------------------------------------------------------
     # End of Day
@@ -716,8 +749,13 @@ class NepaliDate:
         Returns:
             NepaliDate: New instance set to 23:59:59.999.
         """
-        end = self.timestamp.replace(hour=23, minute=59, second=59, microsecond=999000)
-        return NepaliDate(end)
+        result = self.clone()
+        utc_ms = self._timestamp_utc_ms()
+        nepal_ms = utc_ms + NEPAL_UTC_OFFSET_MS
+        nepal_day_start_ms = (nepal_ms // 86400000) * 86400000
+        true_ms = nepal_day_start_ms + 86400000 - 1 - NEPAL_UTC_OFFSET_MS
+        result.timestamp = datetime.fromtimestamp(true_ms / 1000, tz=timezone.utc)
+        return result
 
     # -------------------------------------------------------------------------
     # Start of Week
