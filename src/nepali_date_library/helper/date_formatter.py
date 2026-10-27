@@ -51,12 +51,13 @@ def pad(n: int) -> str:
     return f"{n:02d}" if n < 10 else str(n)
 
 
-def np_digit(s: str) -> str:
+def np_digit(s: str, number_chars: List[str] | None = None) -> str:
     """
     Convert Arabic numerals in a string to Nepali (Devanagari) digits.
 
     Args:
         s (str): String containing numeric characters.
+        number_chars (List[str], optional): Custom digits 0-9.
 
     Returns:
         str: String with digits converted to Nepali numerals.
@@ -65,7 +66,8 @@ def np_digit(s: str) -> str:
         >>> np_digit("123")
         '१२३'
     """
-    return "".join(number_np[ord(c) - 48] for c in s)
+    chars = number_chars if number_chars is not None else number_np
+    return "".join(chars[ord(c) - 48] for c in s)
 
 
 # -----------------------------------------------------------------------------
@@ -114,14 +116,16 @@ def year_np_formatter(size: int) -> DateFormatter:
 
     def f(date: "NepaliDate") -> str:
         y = str(date.year)
+        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
+        digits = c.get("numberNp", number_np) if isinstance(c, dict) else number_np
 
         if size <= 2:
-            return np_digit(y[-2:])
+            return np_digit(y[-2:], digits)
 
         if size == 3:
-            return np_digit(y[-3:])
+            return np_digit(y[-3:], digits)
 
-        return np_digit(y)
+        return np_digit(y, digits)
 
     return f
 
@@ -153,10 +157,14 @@ def month_en_formatter(size: int) -> DateFormatter:
         if size == 2:
             return pad(m + 1)
 
-        if size == 3:
-            return month_short_en[m]
+        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
+        short_names = c.get("monthShortEn", month_short_en) if isinstance(c, dict) else month_short_en
+        full_names = c.get("monthEn", month_en) if isinstance(c, dict) else month_en
 
-        return month_en[m]
+        if size == 3:
+            return short_names[m]
+
+        return full_names[m]
 
     return f
 
@@ -175,17 +183,21 @@ def month_np_formatter(size: int) -> DateFormatter:
 
     def f(date: "NepaliDate") -> str:
         m = date.month
+        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
+        digits = c.get("numberNp", number_np) if isinstance(c, dict) else number_np
+        short_names = c.get("monthShortNp", month_short_np) if isinstance(c, dict) else month_short_np
+        full_names = c.get("monthNp", month_np) if isinstance(c, dict) else month_np
 
         if size == 1:
-            return np_digit(str(m + 1))
+            return np_digit(str(m + 1), digits)
 
         if size == 2:
-            return np_digit(pad(m + 1))
+            return np_digit(pad(m + 1), digits)
 
         if size == 3:
-            return month_short_np[m]
+            return short_names[m]
 
-        return month_np[m]
+        return full_names[m]
 
     return f
 
@@ -217,10 +229,14 @@ def date_en_formatter(size: int) -> DateFormatter:
         if size == 2:
             return pad(d)
 
-        if size == 3:
-            return week_short_en[date.get_day()]
+        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
+        short_weeks = c.get("weekShortEn", week_short_en) if isinstance(c, dict) else week_short_en
+        full_weeks = c.get("weekEn", week_en) if isinstance(c, dict) else week_en
 
-        return week_en[date.get_day()]
+        if size == 3:
+            return short_weeks[date.get_day()]
+
+        return full_weeks[date.get_day()]
 
     return f
 
@@ -239,17 +255,21 @@ def date_np_formatter(size: int) -> DateFormatter:
 
     def f(date: "NepaliDate") -> str:
         d = date.day
+        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
+        digits = c.get("numberNp", number_np) if isinstance(c, dict) else number_np
+        short_weeks = c.get("weekShortNp", week_short_np) if isinstance(c, dict) else week_short_np
+        full_weeks = c.get("weekNp", week_np) if isinstance(c, dict) else week_np
 
         if size == 1:
-            return np_digit(str(d))
+            return np_digit(str(d), digits)
 
         if size == 2:
-            return np_digit(pad(d))
+            return np_digit(pad(d), digits)
 
         if size == 3:
-            return week_short_np[date.get_day()]
+            return short_weeks[date.get_day()]
 
-        return week_np[date.get_day()]
+        return full_weeks[date.get_day()]
 
     return f
 

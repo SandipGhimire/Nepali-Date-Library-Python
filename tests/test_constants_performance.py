@@ -30,7 +30,7 @@ def test_custom_constants_performance():
         def _get_constants(self) -> NepaliConstants:
             return custom_constants
 
-    custom_date = CustomNepaliDate()
+    custom_date = CustomNepaliDate(2080, 0, 1)
 
     # First call (processing)
     t0 = time.perf_counter()
