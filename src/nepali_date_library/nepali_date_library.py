@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 from typing import Tuple, Union, Dict, Optional, Any
 from .helper.constants import (
+    BUNDLED_CONSTANTS,
     nepali_date_map,
     EPOCH,
     NEPAL_UTC_OFFSET_MS,
@@ -14,6 +15,8 @@ from .helper.constants import (
     week_short_np,
 )
 from .helper.date_formatter import format_date
+from .helper.nepali_constants import NepaliConstants, ProcessedNepaliConstants
+from .helper.utils import process_constants
 import math
 
 
@@ -147,6 +150,23 @@ class NepaliDate:
         self.year: int
         self.month: int
         self.day: int
+        self._raw_constants: Optional[NepaliConstants] = None
+        self._cached_processed_constants: Optional[ProcessedNepaliConstants] = None
+
+    def _get_constants(self) -> NepaliConstants:
+        return BUNDLED_CONSTANTS
+
+    def _NepaliDate__get_constants(self) -> ProcessedNepaliConstants:
+        current_raw = self._get_constants()
+        if current_raw is BUNDLED_CONSTANTS:
+            return BUNDLED_CONSTANTS
+        if (
+            self._raw_constants is not current_raw
+            or self._cached_processed_constants is None
+        ):
+            self._raw_constants = current_raw
+            self._cached_processed_constants = process_constants(current_raw)
+        return self._cached_processed_constants
 
         # Initialize based on type of input
         if year_or_date is None:

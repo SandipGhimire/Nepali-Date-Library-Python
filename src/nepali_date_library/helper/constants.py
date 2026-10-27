@@ -865,3 +865,20 @@ month_short_np = [
 # -----------------------------------------------------------------------------------
 # Nepali digits in Devanagari script.
 number_np = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"]
+
+from .nepali_constants import ProcessedNepaliConstants
+
+BUNDLED_CONSTANTS: ProcessedNepaliConstants = {
+    "dateMap": nepali_date_map,  # type: ignore
+    "epoch": EPOCH,
+    "utcOffsetMs": NEPAL_UTC_OFFSET_MS,
+    "weekEn": week_en,
+    "weekShortEn": week_short_en,
+    "weekNp": week_np,
+    "weekShortNp": week_short_np,
+    "monthEn": month_en,
+    "monthShortEn": month_short_en,
+    "monthNp": month_np,
+    "monthShortNp": month_short_np,
+    "numberNp": number_np,
+}
