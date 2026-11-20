@@ -40,6 +40,39 @@ print(today.format("YYYY-MM-DD"))  # "2081-07-01"
 
 ---
 
+## 🛠️ Custom Calendar Data
+
+The calendar tables are replaceable, so you can add new years, fix a month length or change labels without waiting for a release. Subclass `NepaliDate`, override the `constants()` classmethod and return a dict built with `define_constants()`:
+
+```python
+from nepali_date_library import ADtoBS, BUNDLED_CONSTANTS, NepaliDate, define_constants
+
+MY_CALENDAR = define_constants({
+    # anything you leave out falls back to the bundled data
+    "dateMap": [
+        *BUNDLED_CONSTANTS["dateMap"],
+        {"year": 2101, "days": [31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31]},
+    ],
+})
+
+
+class MyNepaliDate(NepaliDate):
+    @classmethod
+    def constants(cls):
+        return MY_CALENDAR  # return the same object every time
+
+
+MyNepaliDate(2101, 0, 1).format("YYYY-MM-DD")  # "2101-01-01"
+MyNepaliDate.is_valid(2101, 0, 1)  # True (class helpers follow the subclass too)
+ADtoBS("2044-04-13", MyNepaliDate)  # converters accept your class
+```
+
+Good to know:
+
+- Settable keys: `dateMap`, `epoch`, `utcOffsetMs`, `weekEn`, `weekShortEn`, `weekNp`, `weekShortNp`, `monthEn`, `monthShortEn`, `monthNp`, `monthShortNp`, `numberNp`. Unknown keys raise `ValueError`.
+- Constants are validated once (consecutive years, 12 months of 1-32 days, name tables of the right size, ...) and snapshotted on first use. Later edits to your dict are ignored; to change the calendar, return a different object.
+- Time-dependent helpers such as `current_fiscal_year()` use today's date, so they raise if today is outside your calendar. Pass an explicit year in that case.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please read our [**Contributing Guide**](./CONTRIBUTING.md) or visit our [**Online Contribution Guide**](https://nepali-pkg.date/docs/contribution).

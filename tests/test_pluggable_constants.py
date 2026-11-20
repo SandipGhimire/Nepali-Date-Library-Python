@@ -1,12 +1,14 @@
 import pytest
 from nepali_date_library import NepaliDate, BUNDLED_CONSTANTS, NepaliConstants
 
-
 # Custom calendar extending into year 3000-3002
 custom_calendar: NepaliConstants = {
     **BUNDLED_CONSTANTS,
     "dateMap": [
-        {"year": 3000, "days": [30, 31, 30, 31, 30, 31, 30, 31, 30, 31, 30, 31]},  # 366 (leap)
+        {
+            "year": 3000,
+            "days": [30, 31, 30, 31, 30, 31, 30, 31, 30, 31, 30, 31],
+        },  # 366 (leap)
         {"year": 3001, "days": [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]},  # 360
         {"year": 3002, "days": [31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31]},  # 372
     ],
@@ -28,7 +30,8 @@ custom_calendar: NepaliConstants = {
 
 
 class ExtendedNepaliDate(NepaliDate):
-    def _get_constants(self) -> NepaliConstants:
+    @classmethod
+    def constants(cls) -> NepaliConstants:
         return custom_calendar
 
 
@@ -141,7 +144,8 @@ def test_detects_when_custom_constants_reference_updates():
     current_data = {**custom_calendar}
 
     class DynamicNepaliDate(NepaliDate):
-        def _get_constants(self) -> NepaliConstants:
+        @classmethod
+        def constants(cls) -> NepaliConstants:
             return current_data
 
     d = DynamicNepaliDate("3000-01-01")
@@ -158,4 +162,3 @@ def test_detects_when_custom_constants_reference_updates():
 
     # Same instance dynamically reflects updated constants
     assert d.days_in_month() == 32
-

@@ -1,16 +1,6 @@
 from __future__ import annotations
 from typing import Callable, List, TYPE_CHECKING
-from .constants import (
-    month_en,
-    month_short_en,
-    month_short_np,
-    month_np,
-    number_np,
-    week_short_np,
-    week_short_en,
-    week_np,
-    week_en,
-)
+from .constants import number_np
 
 if TYPE_CHECKING:
     from nepali_date_library import NepaliDate
@@ -116,8 +106,8 @@ def year_np_formatter(size: int) -> DateFormatter:
 
     def f(date: "NepaliDate") -> str:
         y = str(date.year)
-        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
-        digits = c.get("numberNp", number_np) if isinstance(c, dict) else number_np
+        c = date.get_constants()
+        digits = c["numberNp"]
 
         if size <= 2:
             return np_digit(y[-2:], digits)
@@ -157,9 +147,9 @@ def month_en_formatter(size: int) -> DateFormatter:
         if size == 2:
             return pad(m + 1)
 
-        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
-        short_names = c.get("monthShortEn", month_short_en) if isinstance(c, dict) else month_short_en
-        full_names = c.get("monthEn", month_en) if isinstance(c, dict) else month_en
+        c = date.get_constants()
+        short_names = c["monthShortEn"]
+        full_names = c["monthEn"]
 
         if size == 3:
             return short_names[m]
@@ -183,10 +173,10 @@ def month_np_formatter(size: int) -> DateFormatter:
 
     def f(date: "NepaliDate") -> str:
         m = date.month
-        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
-        digits = c.get("numberNp", number_np) if isinstance(c, dict) else number_np
-        short_names = c.get("monthShortNp", month_short_np) if isinstance(c, dict) else month_short_np
-        full_names = c.get("monthNp", month_np) if isinstance(c, dict) else month_np
+        c = date.get_constants()
+        digits = c["numberNp"]
+        short_names = c["monthShortNp"]
+        full_names = c["monthNp"]
 
         if size == 1:
             return np_digit(str(m + 1), digits)
@@ -229,9 +219,9 @@ def date_en_formatter(size: int) -> DateFormatter:
         if size == 2:
             return pad(d)
 
-        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
-        short_weeks = c.get("weekShortEn", week_short_en) if isinstance(c, dict) else week_short_en
-        full_weeks = c.get("weekEn", week_en) if isinstance(c, dict) else week_en
+        c = date.get_constants()
+        short_weeks = c["weekShortEn"]
+        full_weeks = c["weekEn"]
 
         if size == 3:
             return short_weeks[date.get_day()]
@@ -255,10 +245,10 @@ def date_np_formatter(size: int) -> DateFormatter:
 
     def f(date: "NepaliDate") -> str:
         d = date.day
-        c = getattr(date, "_NepaliDate__get_constants", lambda: {})()
-        digits = c.get("numberNp", number_np) if isinstance(c, dict) else number_np
-        short_weeks = c.get("weekShortNp", week_short_np) if isinstance(c, dict) else week_short_np
-        full_weeks = c.get("weekNp", week_np) if isinstance(c, dict) else week_np
+        c = date.get_constants()
+        digits = c["numberNp"]
+        short_weeks = c["weekShortNp"]
+        full_weeks = c["weekNp"]
 
         if size == 1:
             return np_digit(str(d), digits)

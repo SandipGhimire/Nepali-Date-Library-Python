@@ -1,7 +1,11 @@
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Optional, Type
+
+if TYPE_CHECKING:
+    from nepali_date_library import NepaliDate
 
 
-def ADtoBS(adDate: str) -> str:
+def ADtoBS(adDate: str, date_class: Optional[Type["NepaliDate"]] = None) -> str:
     """
     Convert a Gregorian (AD) date string to a Nepali Bikram Sambat (BS) date.
 
@@ -12,6 +16,9 @@ def ADtoBS(adDate: str) -> str:
     Args:
         adDate (str):
             Gregorian date string in the format `"YYYY-MM-DD"`.
+        date_class (Type[NepaliDate], optional):
+            A `NepaliDate` subclass whose calendar data should be used.
+            Defaults to the bundled calendar.
 
     Raises:
         ValueError:
@@ -43,14 +50,16 @@ def ADtoBS(adDate: str) -> str:
 
     from nepali_date_library import NepaliDate
 
+    cls = date_class if date_class is not None else NepaliDate
+
     try:
-        nd = NepaliDate(ad)
+        nd = cls(ad)
         return nd.format("YYYY-MM-DD")
     except Exception as e:
         raise ValueError(f"Fail to convert AD to BS, Error Detail: {str(e)}")
 
 
-def BStoAD(bsDate: str) -> str:
+def BStoAD(bsDate: str, date_class: Optional[Type["NepaliDate"]] = None) -> str:
     """
     Convert a Nepali Bikram Sambat (BS) date string to a Gregorian (AD) date.
 
@@ -61,6 +70,9 @@ def BStoAD(bsDate: str) -> str:
     Args:
         bsDate (str):
             Nepali date string in the format `"YYYY-MM-DD"`.
+        date_class (Type[NepaliDate], optional):
+            A `NepaliDate` subclass whose calendar data should be used.
+            Defaults to the bundled calendar.
 
     Raises:
         ValueError:
@@ -85,8 +97,10 @@ def BStoAD(bsDate: str) -> str:
 
     from nepali_date_library import NepaliDate
 
+    cls = date_class if date_class is not None else NepaliDate
+
     try:
-        nepali_date_instance = NepaliDate(bsDate)
+        nepali_date_instance = cls(bsDate)
         english_date = nepali_date_instance.get_english_date().strftime("%Y-%m-%d")
         return english_date
     except Exception as e:

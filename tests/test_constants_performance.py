@@ -9,7 +9,7 @@ def test_default_constants_performance():
 
     start = time.perf_counter()
     for _ in range(n):
-        date._NepaliDate__get_constants()
+        date.get_constants()
     elapsed = time.perf_counter() - start
 
     micro_per_op = (elapsed * 1_000_000) / n
@@ -27,14 +27,15 @@ def test_custom_constants_performance():
     }
 
     class CustomNepaliDate(NepaliDate):
-        def _get_constants(self) -> NepaliConstants:
+        @classmethod
+        def constants(cls) -> NepaliConstants:
             return custom_constants
 
     custom_date = CustomNepaliDate(2080, 0, 1)
 
     # First call (processing)
     t0 = time.perf_counter()
-    first = custom_date._NepaliDate__get_constants()
+    first = custom_date.get_constants()
     first_run_micro = (time.perf_counter() - t0) * 1_000_000
 
     assert first["dateMap"][0]["totalDays"] == 364
@@ -45,11 +46,12 @@ def test_custom_constants_performance():
     n = 1_000_000
     start = time.perf_counter()
     for _ in range(n):
-        custom_date._NepaliDate__get_constants()
+        custom_date.get_constants()
     cached_micro = ((time.perf_counter() - start) * 1_000_000) / n
 
     print(
-        f"[Python Benchmark] Custom first-run process: {first_run_micro:.2f} µs | Cached calls: {cached_micro:.4f} µs/op"
+        f"[Python Benchmark] Custom first-run process: {first_run_micro:.2f} µs"
+        f" | Cached calls: {cached_micro:.4f} µs/op"
     )
     assert cached_micro < 1.0
 
@@ -58,4 +60,3 @@ if __name__ == "__main__":
     test_default_constants_performance()
     test_custom_constants_performance()
     print("Python speed tester passed successfully!")
-

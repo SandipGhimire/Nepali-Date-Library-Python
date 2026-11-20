@@ -1,10 +1,19 @@
+from collections import OrderedDict
 from datetime import datetime, timezone, timedelta
-from typing import Tuple, Union, Dict, Optional, Any, List
+from typing import Tuple, Union, Dict, Optional, Any, List, Mapping
 from .helper.constants import BUNDLED_CONSTANTS
 from .helper.date_formatter import format_date
-from .helper.nepali_constants import NepaliConstants, ProcessedNepaliConstants
-from .helper.utils import process_constants
+from .helper.nepali_constants import ProcessedNepaliConstants
+from .helper.utils import find_year_index, process_constants
 import math
+
+# Processed snapshots keyed by the id of the raw constants a subclass returns. The raw object is
+# kept next to its snapshot so an id can never be mistaken for another object's after garbage
+# collection. Bounded, so dropping calendars does not leak.
+_PROCESSED_CACHE: "OrderedDict[int, Tuple[Any, ProcessedNepaliConstants]]" = (
+    OrderedDict()
+)
+_PROCESSED_CACHE_SIZE = 64
 
 
 # -----------------------------------------------------------------------------------
@@ -139,8 +148,6 @@ class NepaliDate:
         self.year: int
         self.month: int
         self.day: int
-        self._raw_constants: Optional[NepaliConstants] = None
-        self._cached_processed_constants: Optional[ProcessedNepaliConstants] = None
 
         # Initialize based on type of input
         if year_or_date is None:
@@ -148,12 +155,16 @@ class NepaliDate:
         elif isinstance(year_or_date, datetime):
             self.set_english_date(year_or_date)
         elif isinstance(year_or_date, NepaliDate):
-            self.timestamp = year_or_date.timestamp
-            self.year = year_or_date.year
-            self.month = year_or_date.month
-            self.day = year_or_date.day
+            if year_or_date.get_constants() is self.get_constants():
+                self.timestamp = year_or_date.timestamp
+                self.year = year_or_date.year
+                self.month = year_or_date.month
+                self.day = year_or_date.day
+            else:
+                # Different calendar: recompute from the instant instead of trusting foreign fields.
+                self.set_english_date(year_or_date.timestamp)
         elif isinstance(year_or_date, str):
-            self.set(*_parse(year_or_date, self._NepaliDate__get_constants()["dateMap"]))
+            self.set(*_parse(year_or_date, self.get_constants()["dateMap"]))
         elif isinstance(year_or_date, int) and month is not None and day is not None:
             self.set(year_or_date, month, day)
         elif isinstance(year_or_date, int):
@@ -163,20 +174,49 @@ class NepaliDate:
         else:
             raise ValueError("Invalid argument syntax")
 
-    def _get_constants(self) -> NepaliConstants:
+    @classmethod
+    def constants(cls) -> Mapping[str, Any]:
+        """
+        Extension point: override in a subclass to plug in your own calendar data.
+
+        Return the same dict every time (a module-level or class-level object, not a fresh
+        literal), ideally one built with ``define_constants()``. The data is validated and
+        snapshotted the first time it is used; to change the calendar later, return a
+        different object.
+
+        Example:
+            >>> class MyNepaliDate(NepaliDate):
+            ...     @classmethod
+            ...     def constants(cls):
+            ...         return MY_CONSTANTS
+        """
         return BUNDLED_CONSTANTS
 
-    def _NepaliDate__get_constants(self) -> ProcessedNepaliConstants:
-        current_raw = self._get_constants()
-        if current_raw is BUNDLED_CONSTANTS:
+    @classmethod
+    def get_constants(cls) -> ProcessedNepaliConstants:
+        """
+        Return the validated, read-only calendar data this class works with.
+
+        Cheap to call: the result is cached per constants object. Works on the class and on
+        instances.
+
+        Raises:
+            ValueError: If the subclass supplies invalid constants.
+        """
+        raw = cls.constants()
+        if raw is BUNDLED_CONSTANTS:
             return BUNDLED_CONSTANTS
-        if (
-            self._raw_constants is not current_raw
-            or self._cached_processed_constants is None
-        ):
-            self._raw_constants = current_raw
-            self._cached_processed_constants = process_constants(current_raw)
-        return self._cached_processed_constants
+
+        key = id(raw)
+        hit = _PROCESSED_CACHE.get(key)
+        if hit is not None and hit[0] is raw:
+            return hit[1]
+
+        processed = process_constants(raw)
+        _PROCESSED_CACHE[key] = (raw, processed)
+        if len(_PROCESSED_CACHE) > _PROCESSED_CACHE_SIZE:
+            _PROCESSED_CACHE.popitem(last=False)
+        return processed
 
     # -----------------------------------------------------------------------------------
     # Conversion from Gregorian date
@@ -198,7 +238,7 @@ class NepaliDate:
         """
         self.timestamp = date
 
-        c = self._NepaliDate__get_constants()
+        c = self.get_constants()
         d_map = c["dateMap"]
         epoch = c["epoch"]
         utc_offset_ms = c["utcOffsetMs"]
@@ -220,20 +260,10 @@ class NepaliDate:
         if days_count < 0 or days_count >= d_map[-1]["daysTillNow"]:
             raise ValueError("Date is out of the supported range")
 
-        idx = days_count // 366  # approximate index in date_map
-        if idx < 0:
-            idx = 0
-        elif idx >= len(d_map):
-            idx = len(d_map) - 1
-
-        # Find correct year block
-        while days_count >= d_map[idx]["daysTillNow"]:
-            idx += 1
-
-        prev_till_now = d_map[idx - 1]["daysTillNow"] if idx - 1 >= 0 else 0
-        days_count -= prev_till_now
-
+        idx = find_year_index(d_map, days_count)
         tmp = d_map[idx]
+        days_count -= tmp["daysTillNow"] - tmp["totalDays"]
+
         self.year = tmp["year"]
         self.month = 0
 
@@ -280,7 +310,7 @@ class NepaliDate:
             ValueError:
                 If the year is outside the supported Nepali calendar range.
         """
-        c = self._NepaliDate__get_constants()
+        c = self.get_constants()
         d_map = c["dateMap"]
         epoch = c["epoch"]
 
@@ -390,7 +420,7 @@ class NepaliDate:
         Raises:
             ValueError: If the date string format is invalid or out of range.
         """
-        self.set(*_parse(date_string, self._NepaliDate__get_constants()["dateMap"]))
+        self.set(*_parse(date_string, self.get_constants()["dateMap"]))
 
     # -------------------------------------------------------------------------
     # Get Year
@@ -431,7 +461,7 @@ class NepaliDate:
         Returns:
             int: Day of the week index (0=Sunday .. 6=Saturday).
         """
-        utc_offset_ms = self._NepaliDate__get_constants()["utcOffsetMs"]
+        utc_offset_ms = self.get_constants()["utcOffsetMs"]
         nepal_time = self.timestamp + timedelta(milliseconds=utc_offset_ms)
         return (nepal_time.weekday() + 1) % 7
 
@@ -457,7 +487,7 @@ class NepaliDate:
         Returns:
             int: Hour of the day.
         """
-        utc_offset_ms = self._NepaliDate__get_constants()["utcOffsetMs"]
+        utc_offset_ms = self.get_constants()["utcOffsetMs"]
         nepal_time = self.timestamp + timedelta(milliseconds=utc_offset_ms)
         return nepal_time.hour
 
@@ -471,7 +501,7 @@ class NepaliDate:
         Returns:
             int: Minutes.
         """
-        utc_offset_ms = self._NepaliDate__get_constants()["utcOffsetMs"]
+        utc_offset_ms = self.get_constants()["utcOffsetMs"]
         nepal_time = self.timestamp + timedelta(milliseconds=utc_offset_ms)
         return nepal_time.minute
 
@@ -485,7 +515,7 @@ class NepaliDate:
         Returns:
             int: Seconds.
         """
-        utc_offset_ms = self._NepaliDate__get_constants()["utcOffsetMs"]
+        utc_offset_ms = self.get_constants()["utcOffsetMs"]
         nepal_time = self.timestamp + timedelta(milliseconds=utc_offset_ms)
         return nepal_time.second
 
@@ -594,7 +624,7 @@ class NepaliDate:
             new_month += 12
             new_year -= 1
 
-        d_map = self._NepaliDate__get_constants()["dateMap"]
+        d_map = self.get_constants()["dateMap"]
         year_index = new_year - d_map[0]["year"]
 
         if year_index < 0 or year_index >= len(d_map):
@@ -626,7 +656,7 @@ class NepaliDate:
             ValueError: If the resulting date is outside the supported range.
         """
         new_year = self.year + years
-        d_map = self._NepaliDate__get_constants()["dateMap"]
+        d_map = self.get_constants()["dateMap"]
 
         if new_year < d_map[0]["year"] or new_year >= d_map[0]["year"] + len(d_map):
             raise ValueError("Resulting date is out of supported range")
@@ -641,30 +671,33 @@ class NepaliDate:
     # -------------------------------------------------------------------------
     # Minimum Date
     # -------------------------------------------------------------------------
-    @staticmethod
-    def minimum() -> datetime:
+    @classmethod
+    def minimum(cls) -> datetime:
         """
         Return the earliest Gregorian date supported by the Nepali calendar.
 
         Returns:
             datetime: Minimum supported Gregorian date.
         """
-        return datetime.fromtimestamp(BUNDLED_CONSTANTS["epoch"] / 1000, tz=timezone.utc)
+        return datetime.fromtimestamp(
+            cls.get_constants()["epoch"] / 1000, tz=timezone.utc
+        )
 
     # -------------------------------------------------------------------------
     # Maximum Date
     # -------------------------------------------------------------------------
-    @staticmethod
-    def maximum() -> datetime:
+    @classmethod
+    def maximum(cls) -> datetime:
         """
         Return the latest Gregorian date supported by the Nepali calendar.
 
         Returns:
             datetime: Maximum supported Gregorian date.
         """
-        d_map = BUNDLED_CONSTANTS["dateMap"]
+        c = cls.get_constants()
+        d_map = c["dateMap"]
         return datetime.fromtimestamp(
-            (BUNDLED_CONSTANTS["epoch"] + (d_map[-1]["daysTillNow"] - 1) * 86400000) / 1000,
+            (c["epoch"] + (d_map[-1]["daysTillNow"] - 1) * 86400000) / 1000,
             tz=timezone.utc,
         )
 
@@ -678,7 +711,7 @@ class NepaliDate:
         Returns:
             int: Number of days in the month.
         """
-        d_map = self._NepaliDate__get_constants()["dateMap"]
+        d_map = self.get_constants()["dateMap"]
         year_index = self.year - d_map[0]["year"]
         return d_map[year_index]["days"][self.month]
 
@@ -692,7 +725,7 @@ class NepaliDate:
         Returns:
             bool: True if it is a leap year, False otherwise.
         """
-        d_map = self._NepaliDate__get_constants()["dateMap"]
+        d_map = self.get_constants()["dateMap"]
         year_index = self.year - d_map[0]["year"]
         return d_map[year_index]["totalDays"] >= 366
 
@@ -755,7 +788,7 @@ class NepaliDate:
         Returns:
             NepaliDate: New instance set to 00:00:00.
         """
-        c = self._NepaliDate__get_constants()
+        c = self.get_constants()
         nepal_offset_ms = c["utcOffsetMs"]
         result = self.clone()
         utc_ms = self._timestamp_utc_ms()
@@ -775,7 +808,7 @@ class NepaliDate:
         Returns:
             NepaliDate: New instance set to 23:59:59.999.
         """
-        c = self._NepaliDate__get_constants()
+        c = self.get_constants()
         nepal_offset_ms = c["utcOffsetMs"]
         result = self.clone()
         utc_ms = self._timestamp_utc_ms()
@@ -875,7 +908,7 @@ class NepaliDate:
         Returns:
             NepaliDate: New instance set to the last day of the last month (Chaitra).
         """
-        d_map = self._NepaliDate__get_constants()["dateMap"]
+        d_map = self.get_constants()["dateMap"]
         year_index = self.year - d_map[0]["year"]
         days_in_chaitra = d_map[year_index]["days"][11]
         return self.__class__(self.year, 11, days_in_chaitra).end_of_day()
@@ -883,8 +916,10 @@ class NepaliDate:
     # -------------------------------------------------------------------------
     # Get Month Name
     # -------------------------------------------------------------------------
-    @staticmethod
-    def get_month_name(month: int, short: bool = False, nepali: bool = False) -> str:
+    @classmethod
+    def get_month_name(
+        cls, month: int, short: bool = False, nepali: bool = False
+    ) -> str:
         """
         Return the name of the specified Nepali month.
 
@@ -902,21 +937,21 @@ class NepaliDate:
         if month < 0 or month > 11:
             raise ValueError("Invalid month index, must be between 0-11")
 
+        c = cls.get_constants()
         if nepali:
-            return BUNDLED_CONSTANTS["monthShortNp"][month] if short else BUNDLED_CONSTANTS["monthNp"][month]
-        else:
-            return BUNDLED_CONSTANTS["monthShortEn"][month] if short else BUNDLED_CONSTANTS["monthEn"][month]
+            return c["monthShortNp"][month] if short else c["monthNp"][month]
+        return c["monthShortEn"][month] if short else c["monthEn"][month]
 
     # -------------------------------------------------------------------------
     # Get Day Name
     # -------------------------------------------------------------------------
-    @staticmethod
-    def get_day_name(day: int, short: bool = False, nepali: bool = False) -> str:
+    @classmethod
+    def get_day_name(cls, day: int, short: bool = False, nepali: bool = False) -> str:
         """
         Return the name of the specified day of the week.
 
         Args:
-            day (int): Day index (0-6, where 0 is Monday).
+            day (int): Day index (0-6, where 0 is Sunday).
             short (bool): If True, return the short form of the day name.
             nepali (bool): If True, return the name in Nepali script.
 
@@ -929,16 +964,16 @@ class NepaliDate:
         if day < 0 or day > 6:
             raise ValueError("Invalid day index, must be between 0-6")
 
+        c = cls.get_constants()
         if nepali:
-            return BUNDLED_CONSTANTS["weekShortNp"][day] if short else BUNDLED_CONSTANTS["weekNp"][day]
-        else:
-            return BUNDLED_CONSTANTS["weekShortEn"][day] if short else BUNDLED_CONSTANTS["weekEn"][day]
+            return c["weekShortNp"][day] if short else c["weekNp"][day]
+        return c["weekShortEn"][day] if short else c["weekEn"][day]
 
     # -------------------------------------------------------------------------
     # Is Valid
     # -------------------------------------------------------------------------
-    @staticmethod
-    def is_valid(year: int, month: int, date: int) -> bool:
+    @classmethod
+    def is_valid(cls, year: int, month: int, date: int) -> bool:
         """
         Check if the specified Nepali date is valid.
 
@@ -950,8 +985,9 @@ class NepaliDate:
         Returns:
             bool: True if the date is valid within the supported range.
         """
+        # Resolved outside the try so a broken calendar is reported, not read as "invalid".
+        d_map = cls.get_constants()["dateMap"]
         try:
-            d_map = BUNDLED_CONSTANTS["dateMap"]
             if year < d_map[0]["year"] or year >= d_map[0]["year"] + len(d_map):
                 return False
 
@@ -978,9 +1014,11 @@ class NepaliDate:
         Returns:
             bool: True if valid, False otherwise.
         """
+        d_map = self.get_constants()["dateMap"]
         try:
-            d_map = self._NepaliDate__get_constants()["dateMap"]
-            if self.year < d_map[0]["year"] or self.year >= d_map[0]["year"] + len(d_map):
+            if self.year < d_map[0]["year"] or self.year >= d_map[0]["year"] + len(
+                d_map
+            ):
                 return False
 
             if self.month < 0 or self.month > 11:
@@ -1008,12 +1046,14 @@ class NepaliDate:
         if month < 0 or month > 11:
             raise ValueError("Invalid year or month")
 
+        cls.get_constants()  # surface an invalid calendar instead of reporting a bad month
+
         try:
             first_day = cls(year, month, 1)
         except Exception:
             raise ValueError("Invalid year or month")
 
-        d_map = first_day._NepaliDate__get_constants()["dateMap"]
+        d_map = first_day.get_constants()["dateMap"]
         min_year = d_map[0]["year"]
         max_year = min_year + len(d_map)
 
@@ -1048,11 +1088,22 @@ class NepaliDate:
         if next_year < max_year and remaining > 0:
             next_days = list(range(1, remaining + 1))
 
+        has_prev = prev_year >= min_year
+        has_next = next_year < max_year
+
         return {
             "prev_remaining_days": first_day_of_week,
-            "prev_month": {"year": prev_year if prev_year >= min_year else 0, "month": prev_month if prev_year >= min_year else 0, "days": prev_days},
+            "prev_month": {
+                "year": prev_year if has_prev else 0,
+                "month": prev_month if has_prev else 0,
+                "days": prev_days,
+            },
             "current_month": {"year": year, "month": month, "days": current_days},
-            "next_month": {"year": next_year if next_year < max_year else 0, "month": next_month if next_year < max_year else 0, "days": next_days},
+            "next_month": {
+                "year": next_year if has_next else 0,
+                "month": next_month if has_next else 0,
+                "days": next_days,
+            },
             "remaining_days": remaining,
         }
 
@@ -1146,7 +1197,9 @@ class NepaliDate:
     # Get Quarter by Year
     # -------------------------------------------------------------------------
     @classmethod
-    def get_quarter(cls, quarter: int, year: Optional[int] = None) -> Dict[str, "NepaliDate"]:
+    def get_quarter(
+        cls, quarter: int, year: Optional[int] = None
+    ) -> Dict[str, "NepaliDate"]:
         """
         Return the start and end dates for a specific quarter and year.
 
@@ -1199,7 +1252,9 @@ class NepaliDate:
     # Get Quarters by Year
     # -------------------------------------------------------------------------
     @classmethod
-    def get_quarters(cls, year: Optional[int] = None) -> Dict[str, Dict[str, "NepaliDate"]]:
+    def get_quarters(
+        cls, year: Optional[int] = None
+    ) -> Dict[str, Dict[str, "NepaliDate"]]:
         """
         Return the dates for all four quarters of a specified year.
 
