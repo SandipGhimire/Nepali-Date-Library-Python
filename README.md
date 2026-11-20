@@ -25,6 +25,14 @@ All guides, complete API references, Devanagari format tokens, fiscal year helpe
 pip install nepali-date-library
 ```
 
+> **Beta:** the pluggable-calendar-data release is a pre-release (`1.1.0b1`).
+>
+> ```bash
+> pip install --pre nepali-date-library
+> # or pin it
+> pip install nepali-date-library==1.1.0b1
+> ```
+
 ---
 
 ## 🚀 Quick Example

@@ -1153,7 +1153,7 @@ wheels = [
 
 [[package]]
 name = "nepali-date-library"
-version = "1.0.2"
+version = "1.1.0b1"
 source = { editable = "." }
 
 [package.dev-dependencies]
